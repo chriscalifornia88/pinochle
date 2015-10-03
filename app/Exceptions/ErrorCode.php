@@ -1,0 +1,13 @@
+<?php
+/**
+ * User: Christian Augustine
+ * Date: 10/3/15
+ * Time: 12:28 PM
+ */
+
+namespace App\Exceptions;
+
+class ErrorCode
+{
+    const MODEL_NOT_FOUND = 700;
+}
