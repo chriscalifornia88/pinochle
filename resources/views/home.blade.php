@@ -11,6 +11,7 @@
     
         <script src="{{ asset('js/vendor/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('js/vendor/bootstrap/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('js/vendor/phaser/phaser.min.js') }}"></script>
         
         <script src="{{ asset('js/app.js') }}"></script>
     </body>

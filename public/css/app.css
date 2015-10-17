@@ -5796,3 +5796,5 @@ button.close {
 @media print {
   .hidden-print {
     display: none !important; } }
+html, body {
+  background: #027f17; }

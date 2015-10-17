@@ -2,11 +2,11 @@
  * Created by christian on 10/2/15.
  */
     
-/// <reference path="../../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
 module Pinochle {
     export class Boot extends Phaser.State {
         preload() {
-            this.load.image('preloadbar', 'assets/images/preloader-bar.png');
+            this.load.image('preloadbar', 'assets/sprites/preloader-bar.png');
         }
 
         create() {
