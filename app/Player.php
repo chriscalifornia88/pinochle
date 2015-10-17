@@ -7,7 +7,7 @@ namespace App;
  *
  * @property integer $id
  * @property integer $player_id
- * @pdroperty integer $game_id
+ * @property integer $game_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Player whereId($value)
@@ -19,10 +19,22 @@ namespace App;
  * @property-read \User $user
  * @property integer $user_id
  * @method static \Illuminate\Database\Query\Builder|\App\Player whereUserId($value)
- * @property integer $game_id
+ * @property array $hand
+ * @property int $card_count
+ * @method static \Illuminate\Database\Query\Builder|\App\Player whereHand($value)
  */
 class Player extends BaseModel
 {
+    protected $casts = [
+        'hand' => 'array',
+    ];
+    protected $appends = ['card_count'];
+
+    public function getCardCountAttribute()
+    {
+        return count($this->getHand());
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -66,11 +78,93 @@ class Player extends BaseModel
 
     /**
      * @param User $user
+     * @return bool
+     */
+    public function isUser(User $user)
+    {
+        return $this->getUser()->getId() === $user->getId();
+    }
+
+    /**
+     * @param User $user
      * @return $this
      */
     public function setUser(User $user)
     {
         $this->user()->associate($user);
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
+    public function getHand()
+    {
+        if (is_array($this->hand)) {
+            return $this->hand;
+        }
+        
+        return json_decode($this->hand, true);
+    }
+
+    /**
+     * @param array $cards
+     * @return $this
+     */
+    public function setHand(array $cards)
+    {
+        $this->hand = json_encode(array_values($cards));
+
+        return $this;
+    }
+
+    /**
+     * Add a card to the player's hand
+     * @param Card $card
+     * @return $this
+     */
+    public function addCard(Card $card)
+    {
+        $hand = $this->getHand();
+        $hand[] = $card->getCode();
+        $this->setHand($hand);
+
+        return $this;
+    }
+
+    /**
+     * Remove a card from the player's hand
+     * @param Card $card
+     * @return $this
+     */
+    public function removeCard(Card $card)
+    {
+        $hand = $this->getHand();
+        foreach ($hand as $index => $handCard) {
+            if ($handCard === $card->getCode()) {
+                unset($hand[$index]);
+                break;
+            }
+        }
+        $this->setHand($hand);
+
+        return $this;
+    }
+
+    /**
+     * Remove a card from the player's hand
+     * @param int $index
+     * @return $this
+     */
+    public function removeCardByIndex($index)
+    {
+        $hand = $this->getHand();
+        if (isset($hand[$index])) {
+            unset($hand[$index]);
+            $this->setHand($hand);
+        }
 
         return $this;
     }

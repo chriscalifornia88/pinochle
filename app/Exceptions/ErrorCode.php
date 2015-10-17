@@ -10,4 +10,5 @@ namespace App\Exceptions;
 class ErrorCode
 {
     const MODEL_NOT_FOUND = 700;
+    const ACCESS_DENIED = 705;
 }

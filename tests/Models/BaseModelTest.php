@@ -13,7 +13,7 @@ class BaseModelTest extends TestCase
     }
 
     /**
-     * @expectedException App\Exceptions\ModelNotFoundException
+     * @expectedException \App\Exceptions\ModelNotFoundException
      */
     public function testFetchThrowsModelNotFoundException()
     {

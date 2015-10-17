@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Game;
+use App\Card;
 
 class GameTableSeeder extends Seeder
 {
@@ -14,15 +15,29 @@ class GameTableSeeder extends Seeder
     {
         Game::create(
             [
-                'name'   => 'Game 1',
-                'active' => true
+                'name'      => 'Game 1',
+                'active'    => true,
+                'play_area' => json_encode(
+                    [
+                        (new Card(Card::TYPE_JACK, Card::SUIT_DIAMONDS))->getCode(),
+                        (new Card(Card::TYPE_10, Card::SUIT_DIAMONDS))->getCode(),
+                        (new Card(Card::TYPE_KING, Card::SUIT_DIAMONDS))->getCode(),
+                        (new Card(Card::TYPE_KING, Card::SUIT_CLUBS))->getCode(),
+                    ]
+                ),
             ]
         );
 
         Game::create(
             [
-                'name'   => 'Game 2',
-                'active' => false
+                'name'      => 'Game 2',
+                'active'    => false,
+                'play_area' => json_encode(
+                    [
+                        (new Card(Card::TYPE_QUEEN, Card::SUIT_SPADES))->getCode(),
+                        (new Card(Card::TYPE_9, Card::SUIT_HEARTS))->getCode(),
+                    ]
+                ),
             ]
         );
     }

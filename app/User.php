@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -27,6 +27,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @method static \Illuminate\Database\Query\Builder|\App\User whereRememberToken($value)
  * @method static \Illuminate\Database\Query\Builder|\App\User whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\User whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|Player[] $players
  */
 class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
@@ -44,6 +45,15 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     }
 
     /**
+     * Check if the player is in the specified game
+     * @param Game $game
+     * @return bool
+     */
+    public function inGame(Game $game) {
+        return $this->players()->where('game_id', $game->getId())->get()->count() > 0;
+    }
+
+    /**
      * @codeCoverageIgnore
      * @return int
      */
@@ -57,7 +67,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
      */
     public function getPlayers()
     {
-        return $this->players;
+        return $this->players->all();
     }
 
     /**

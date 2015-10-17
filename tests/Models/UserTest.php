@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
 

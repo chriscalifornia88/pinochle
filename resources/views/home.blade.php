@@ -7,6 +7,7 @@
     </head>
     <body>
         <div class="container">
+            Welcome, {{ Auth::user()->getName() }}!
         </div>
     
         <script src="{{ asset('js/vendor/jquery/jquery.min.js') }}"></script>
