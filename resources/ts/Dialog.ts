@@ -2,7 +2,7 @@
  * Created by christian on 10/2/15.
  */
 
-/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts"/>
 module Pinochle {
     export class Dialog {
         protected _box:Phaser.Graphics;

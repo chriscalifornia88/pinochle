@@ -1,9 +1,12 @@
 {
   "private": true,
   "devDependencies": {
+    "brace-expansion": "^1.1.1",
+    "del": "^2.0.2",
     "gulp": "^3.8.8",
     "laravel-elixir": "^3.2.8",
-    "typescript": "^1.6.2"
+    "typescript": "^1.6.2",
+    "wrappy": "^1.0.1"
   },
   "dependencies": {
     "bootstrap-sass": "^3.3.5",

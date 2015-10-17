@@ -2,7 +2,7 @@
  * Created by christian on 10/2/15.
  */
 
-/// <reference path="../../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
 module Pinochle {
     export class Game extends Phaser.State {
         loading:boolean = false;
@@ -13,9 +13,28 @@ module Pinochle {
             //this.game.physics.arcade.enable(this.player);
 
             this.dialog = new Dialog();
+            
+            this.game.stage.backgroundColor = '#027f17';
+            //this.game.stage.smoothed = false;
+            this.game.scale.forceLandscape = true;
 
             // Setup input
             this.game.input.mouse.enabled = true;
+            
+            var x = 5;
+            var y = 5;
+            for(var i=0; i<39; i++) {
+                var card:Phaser.Sprite = this.game.add.sprite(x, y, 'cards', i);
+                
+                card.scale.set(.6, .6);
+                
+                x += card.width + 5;
+                
+                if((x + card.width) > this.game.width) {
+                    x = 5;
+                    y += card.height + 5;
+                }
+            }
         }
 
         update() {

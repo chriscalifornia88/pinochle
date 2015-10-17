@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-/// <reference path="../../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
 var Pinochle;
 (function (Pinochle) {
     var Preload = (function (_super) {
@@ -18,11 +18,14 @@ var Pinochle;
             // Show loading screen
             this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadbar');
             this.load.setPreloadSprite(this.preloadBar);
+            this.load.atlas('cards', 'assets/sprites/cards.png', 'assets/sprites/cards.xml', null, Phaser.Loader.TEXTURE_ATLAS_XML_STARLING);
             // Load game assets
-            this.load.tilemap('apartmentPorchMap', 'assets/tilemaps/chapter1/apartment_porch.json', null, Phaser.Tilemap.TILED_JSON);
-            this.load.image('chapter1Tiles', 'assets/tilemaps/chapter1/tiles.png');
-            this.load.bitmapFont('justabit', 'assets/fonts/justabit.png', 'assets/fonts/justabit.xml');
-            this.load.image('player', 'assets/images/player.png');
+            //this.load.tilemap('apartmentPorchMap', 'assets/tilemaps/chapter1/apartment_porch.json', null, Phaser.Tilemap.TILED_JSON);
+            //this.load.image('chapter1Tiles', 'assets/tilemaps/chapter1/tiles.png');
+            //
+            //this.load.bitmapFont('justabit', 'assets/fonts/justabit.png', 'assets/fonts/justabit.xml');
+            //
+            //this.load.image('player', 'assets/images/player.png');
         };
         Preload.prototype.create = function () {
             this.game.state.start('Game');
@@ -34,7 +37,7 @@ var Pinochle;
 /**
  * Created by christian on 10/2/15.
  */
-/// <reference path="../../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
 var Pinochle;
 (function (Pinochle) {
     var Boot = (function (_super) {
@@ -43,7 +46,7 @@ var Pinochle;
             _super.apply(this, arguments);
         }
         Boot.prototype.preload = function () {
-            this.load.image('preloadbar', 'assets/images/preloader-bar.png');
+            this.load.image('preloadbar', 'assets/sprites/preloader-bar.png');
         };
         Boot.prototype.create = function () {
             this.game.stage.backgroundColor = '#000000';
@@ -64,7 +67,7 @@ var Pinochle;
 /**
  * Created by christian on 10/2/15.
  */
-/// <reference path="../../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
 var Pinochle;
 (function (Pinochle) {
     var Game = (function (_super) {
@@ -76,8 +79,22 @@ var Pinochle;
         Game.prototype.create = function () {
             //this.game.physics.arcade.enable(this.player);
             this.dialog = new Pinochle.Dialog();
+            this.game.stage.backgroundColor = '#027f17';
+            //this.game.stage.smoothed = false;
+            this.game.scale.forceLandscape = true;
             // Setup input
             this.game.input.mouse.enabled = true;
+            var x = 5;
+            var y = 5;
+            for (var i = 0; i < 39; i++) {
+                var card = this.game.add.sprite(x, y, 'cards', i);
+                card.scale.set(.6, .6);
+                x += card.width + 5;
+                if ((x + card.width) > this.game.width) {
+                    x = 5;
+                    y += card.height + 5;
+                }
+            }
         };
         Game.prototype.update = function () {
             // Collision
@@ -180,7 +197,7 @@ var Pinochle;
 /**
  * Created by christian on 10/2/15.
  */
-/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts"/>
 var Pinochle;
 (function (Pinochle) {
     var Dialog = (function () {
@@ -353,7 +370,7 @@ var Pinochle;
 /**
  * Created by chris on 10/2/15.
  */
-/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts"/>
 /// <reference path="States/Preload.ts" />    
 /// <reference path="States/Boot.ts" />    
 /// <reference path="States/Game.ts" />  
@@ -363,7 +380,7 @@ var Pinochle;
     var App = (function (_super) {
         __extends(App, _super);
         function App() {
-            _super.call(this, 300, 300, Phaser.AUTO, '', null);
+            _super.call(this, 1366, 768, Phaser.ScaleManager.RESIZE, '', null);
             this.state.add('Preload', Pinochle.Preload, false);
             this.state.add('Boot', Pinochle.Boot, true);
             this.state.add('Game', Pinochle.Game, false);
@@ -375,3 +392,4 @@ var Pinochle;
 window.onload = function () {
     new Pinochle.App;
 };
+//# sourceMappingURL=app.js.map
