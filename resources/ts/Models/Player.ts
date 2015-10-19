@@ -9,6 +9,7 @@ module Pinochle.Models {
         public created_at:string;
         public updated_at:string;
         public seat:number;
+        public color:string;
         public card_count:number;
         public hand:string[];
     }

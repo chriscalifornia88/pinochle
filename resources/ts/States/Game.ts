@@ -21,13 +21,16 @@ module Pinochle {
         private players:Player[] = [];
 
         create() {
-            //this.game.physics.arcade.enable(this.player);
-
             this.dialog = new Dialog();
 
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            this.game.stage.backgroundColor = '#027f17';
+            this.game.stage.backgroundColor = '#5fa777';
             this.game.scale.forceLandscape = true;
+            this.game.scale.refresh();
+            
+            var tableShadow:Phaser.Image = this.game.add.image(0, 0, 'table-shadow');
+            tableShadow.width = this.game.width;
+            tableShadow.height = this.game.width;
             //this.game.stage.smoothed = false;
 
             // Setup input

@@ -24,6 +24,8 @@ namespace App;
  * @method static \Illuminate\Database\Query\Builder|\App\Player whereHand($value)
  * @property integer $seat
  * @method static \Illuminate\Database\Query\Builder|\App\Player whereSeat($value)
+ * @property string $color
+ * @method static \Illuminate\Database\Query\Builder|\App\Player whereColor($value)
  */
 class Player extends BaseModel
 {
@@ -203,6 +205,27 @@ class Player extends BaseModel
             unset($hand[$index]);
             $this->setHand($hand);
         }
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @return string
+     */
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @param string $color
+     * @return $this
+     */
+    public function setColor($color)
+    {
+        $this->color = $color;
 
         return $this;
     }

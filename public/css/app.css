@@ -5797,7 +5797,4 @@ button.close {
   .hidden-print {
     display: none !important; } }
 html, body {
-  background: #027f17; }
-
-canvas {
-  border: 1px solid #000000; }
+  background: #393e42; }

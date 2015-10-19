@@ -5,6 +5,8 @@ module Pinochle {
     export class Player {
         private _model:Models.Player;
 
+        private infoBox:Phaser.Graphics;
+
         private game:Phaser.Game;
         private cardBackStyle:string;
         private seat:Seat;
@@ -22,6 +24,39 @@ module Pinochle {
             this.cards.rotation = this.seat.rotation;
 
             this.model = model;
+
+            if (true) {
+                // Create info box
+                this.infoBox = game.add.graphics(0, 0);
+                this.infoBox.beginFill(0x000000, .07);
+                var color:any = "0x" + model.color;
+                this.infoBox.lineStyle(5, color, 1);
+
+                var infoBoxWidth = 585;
+                var infoBoxHeight = 60;
+
+                // Place it above the cards
+                switch (this.seat.rotation) {
+                    case 0: // Bottom
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxWidth, infoBoxHeight, 5);
+                        this.infoBox.pivot.set(this.infoBox.width / 2, this.infoBox.height);
+                        this.infoBox.y -= this.seat.rectangle.height + 15
+                        break;
+                    case 3.14159: // Top
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxWidth, infoBoxHeight, 5);
+                        this.infoBox.pivot.set(this.infoBox.width / 2, this.infoBox.height);
+                        this.infoBox.y += (this.seat.rectangle.height + 15) + this.infoBox.height;
+                        break;
+                    case 1.5708: // Left
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxHeight, infoBoxWidth, 5);
+                        this.infoBox.pivot.set(this.infoBox.width, this.infoBox.height / 2);
+                        this.infoBox.x += (this.seat.rectangle.height + 151) + this.infoBox.width;
+                    case -1.5708: // Right
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxHeight, infoBoxWidth, 5);
+                        this.infoBox.pivot.set(this.infoBox.width, this.infoBox.height / 2);
+                        this.infoBox.x -= this.seat.rectangle.height + 15
+                }
+            }
         }
 
         public set model(value:Models.Player) {

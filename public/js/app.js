@@ -19,6 +19,7 @@ var Pinochle;
             this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadbar');
             this.load.setPreloadSprite(this.preloadBar);
             this.load.atlas('cards', 'assets/sprites/cards.png', 'assets/sprites/cards.xml', null, Phaser.Loader.TEXTURE_ATLAS_XML_STARLING);
+            this.load.image('table-shadow', 'assets/graphics/table-shadow.png');
             // Load game assets
             //this.load.tilemap('apartmentPorchMap', 'assets/tilemaps/chapter1/apartment_porch.json', null, Phaser.Tilemap.TILED_JSON);
             //this.load.image('chapter1Tiles', 'assets/tilemaps/chapter1/tiles.png');
@@ -85,11 +86,14 @@ var Pinochle;
             this.players = [];
         }
         Game.prototype.create = function () {
-            //this.game.physics.arcade.enable(this.player);
             this.dialog = new Pinochle.Dialog();
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            this.game.stage.backgroundColor = '#027f17';
+            this.game.stage.backgroundColor = '#5fa777';
             this.game.scale.forceLandscape = true;
+            this.game.scale.refresh();
+            var tableShadow = this.game.add.image(0, 0, 'table-shadow');
+            tableShadow.width = this.game.width;
+            tableShadow.height = this.game.width;
             //this.game.stage.smoothed = false;
             // Setup input
             this.game.input.mouse.enabled = true;
@@ -522,6 +526,36 @@ var Pinochle;
             this.cards.pivot.set(0, this.seat.rectangle.height);
             this.cards.rotation = this.seat.rotation;
             this.model = model;
+            if (true) {
+                // Create info box
+                this.infoBox = game.add.graphics(0, 0);
+                this.infoBox.beginFill(0x000000, .07);
+                var color = "0x" + model.color;
+                this.infoBox.lineStyle(5, color, 1);
+                var infoBoxWidth = 585;
+                var infoBoxHeight = 60;
+                // Place it above the cards
+                switch (this.seat.rotation) {
+                    case 0:
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxWidth, infoBoxHeight, 5);
+                        this.infoBox.pivot.set(this.infoBox.width / 2, this.infoBox.height);
+                        this.infoBox.y -= this.seat.rectangle.height + 15;
+                        break;
+                    case 3.14159:
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxWidth, infoBoxHeight, 5);
+                        this.infoBox.pivot.set(this.infoBox.width / 2, this.infoBox.height);
+                        this.infoBox.y += (this.seat.rectangle.height + 15) + this.infoBox.height;
+                        break;
+                    case 1.5708:
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxHeight, infoBoxWidth, 5);
+                        this.infoBox.pivot.set(this.infoBox.width, this.infoBox.height / 2);
+                        this.infoBox.x += (this.seat.rectangle.height + 151) + this.infoBox.width;
+                    case -1.5708:
+                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxHeight, infoBoxWidth, 5);
+                        this.infoBox.pivot.set(this.infoBox.width, this.infoBox.height / 2);
+                        this.infoBox.x -= this.seat.rectangle.height + 15;
+                }
+            }
         }
         Object.defineProperty(Player.prototype, "model", {
             set: function (value) {
