@@ -1,11 +1,8 @@
 <?php
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
 
 class UserTest extends TestCase
 {
-    use DatabaseTransactions;
-
     public function testGetPlayers()
     {
         $user = User::fetch(1);

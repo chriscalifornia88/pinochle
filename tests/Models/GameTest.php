@@ -1,12 +1,10 @@
 <?php
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Game;
 use App\Card;
+use App\User;
 
 class GameTest extends TestCase
 {
-    use DatabaseTransactions;
-
     public function testPlayers()
     {
         $game = Game::fetch(1);
@@ -15,6 +13,17 @@ class GameTest extends TestCase
         $players = $game->getPlayers();
         $this->assertCount(4, $players);
         $this->assertSame('User 1', $players[0]->getUser()->getName());
+    }
+
+    public function testGetPlayerForUser()
+    {
+        $game = Game::fetch(1);
+        $user = User::fetch(1);
+
+        $player = $game->getPlayerForUser($user);
+        $this->assertEquals($user->getId(), $player->getUser()->getId());
+        
+        $this->assertNull($game->getPlayerForUser(User::fetch(5)));
     }
 
     public function testPlayArea()

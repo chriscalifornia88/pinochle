@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<TextureAtlas imagePath="sprites.png">
-	<!--
-	Created with ShoeBox
-	http://renderhjs.net/shoebox/
-	-->
-	<SubTexture name="cardBack_blue1.png"	x="423"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_blue2.png"	x="987"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_blue3.png"	x="987"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_blue4.png"	x="987"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_blue5.png"	x="846"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_green1.png"	x="846"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_green2.png"	x="846"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_green3.png"	x="846"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_green4.png"	x="846"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_green5.png"	x="705"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_red1.png"	x="705"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_red2.png"	x="705"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_red3.png"	x="705"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_red4.png"	x="705"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardBack_red5.png"	x="564"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardClubs10.png"	x="564"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardClubs9.png"	x="564"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardClubsA.png"	x="564"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardClubsJ.png"	x="564"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardClubsK.png"	x="987"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardClubsQ.png"	x="423"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardDiamonds10.png"	x="423"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardDiamonds9.png"	x="423"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardDiamondsA.png"	x="423"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardDiamondsJ.png"	x="282"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardDiamondsK.png"	x="282"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardDiamondsQ.png"	x="282"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardHearts10.png"	x="282"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardHearts9.png"	x="282"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardHeartsA.png"	x="141"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardHeartsJ.png"	x="141"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardHeartsK.png"	x="141"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardHeartsQ.png"	x="141"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardSpades10.png"	x="0"	y="764"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardSpades9.png"	x="141"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardSpadesA.png"	x="0"	y="573"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardSpadesJ.png"	x="0"	y="382"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardSpadesK.png"	x="0"	y="191"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
-	<SubTexture name="cardSpadesQ.png"	x="0"	y="0"	width="140"	height="190" frameX="-0" frameY="-0" frameWidth="140" frameHeight="190"/>
+<TextureAtlas imagePath="cards.png">
+  <!--
+  Created with ShoeBox
+  http://renderhjs.net/shoebox/
+  -->
+  <SubTexture name="back_blue1" x="170" y="345" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_blue2" x="340" y="575" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_blue3" x="340" y="460" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_blue4" x="340" y="345" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_blue5" x="340" y="230" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_green1" x="340" y="115" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_green2" x="340" y="0" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_green3" x="255" y="805" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_green4" x="255" y="690" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_green5" x="255" y="575" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_red1" x="255" y="460" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_red2" x="255" y="345" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_red3" x="255" y="230" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_red4" x="255" y="115" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="back_red5" x="255" y="0" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="10C" x="170" y="690" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="9C" x="170" y="805" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="AC" x="170" y="575" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="JC" x="170" y="460" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="KC" x="340" y="690" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="QC" x="170" y="230" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="10D" x="170" y="0" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="9D" x="170" y="115" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="AD" x="85" y="805" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="JD" x="85" y="690" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="KD" x="85" y="575" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="QD" x="85" y="460" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="10H" x="85" y="230" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="9H" x="85" y="345" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="AH" x="85" y="115" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="JH" x="85" y="0" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="KH" x="0" y="805" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="QH" x="0" y="690" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="10S" x="0" y="460" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="9S" x="0" y="575" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="AS" x="0" y="345" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="JS" x="0" y="230" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="KS" x="0" y="115" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
+  <SubTexture name="QS" x="0" y="0" width="84" height="114" frameX="-0" frameY="-0" frameWidth="84" frameHeight="114"/>
 </TextureAtlas>

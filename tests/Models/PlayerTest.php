@@ -1,13 +1,10 @@
 <?php
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Player;
 use App\User;
 use App\Card;
 
 class PlayerTest extends TestCase
 {
-    use DatabaseTransactions;
-
     public function testGetGame()
     {
         $player = Player::fetch(1);
@@ -64,6 +61,18 @@ class PlayerTest extends TestCase
         $card = next($hand);
         $this->assertSame(Card::TYPE_10, Card::createFromCode($card)->getType());
         $this->assertSame(Card::SUIT_HEARTS, Card::createFromCode($card)->getSuit());
+    }
+    
+    public function testGetCardByIndex() {
+        $player = Player::fetch(1);
+        
+        /** @var Card $card */
+        $card = $player->getCardByIndex(1);
+
+        $this->assertSame(Card::TYPE_QUEEN, $card->getType());
+        $this->assertSame(Card::SUIT_HEARTS, $card->getSuit());
+        
+        $this->assertNull($player->getCardByIndex(999));
     }
     
     public function testIsUser() {

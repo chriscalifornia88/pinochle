@@ -67,34 +67,94 @@ var Pinochle;
 /**
  * Created by christian on 10/2/15.
  */
-/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
 var Pinochle;
 (function (Pinochle) {
     var Game = (function (_super) {
         __extends(Game, _super);
         function Game() {
             _super.apply(this, arguments);
+            this.lastUpdated = moment().subtract(1, 'days');
+            // todo: soft code these IDs
+            this.gameId = 1;
+            this.userId = 1;
+            this.serverCheckDelay = 2000; // 2 seconds
+            this.cardBackStyle = 'back_blue5';
+            this.cardWidth = 84;
+            this.cardHeight = 114;
             this.loading = false;
+            this.players = [];
         }
         Game.prototype.create = function () {
             //this.game.physics.arcade.enable(this.player);
             this.dialog = new Pinochle.Dialog();
+            this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             this.game.stage.backgroundColor = '#027f17';
-            //this.game.stage.smoothed = false;
             this.game.scale.forceLandscape = true;
+            //this.game.stage.smoothed = false;
             // Setup input
             this.game.input.mouse.enabled = true;
-            var x = 5;
-            var y = 5;
-            for (var i = 0; i < 39; i++) {
-                var card = this.game.add.sprite(x, y, 'cards', i);
-                card.scale.set(.6, .6);
-                x += card.width + 5;
-                if ((x + card.width) > this.game.width) {
-                    x = 5;
-                    y += card.height + 5;
+            // Load the game state
+            this.checkServer();
+        };
+        Game.prototype.checkServer = function () {
+            var _this = this;
+            jQuery.get('/game/' + this.gameId, {}, function (response) {
+                _this._model = response.data;
+                // Check if game has updated
+                if (_this.lastUpdated.diff(moment(_this._model.updated_at)) !== 0) {
+                    // Refresh players
+                    if (_this.players.length === 0) {
+                        // Calculate player positions
+                        var seats = [];
+                        switch (_this._model.players.length) {
+                            // todo: add support for 3-5 handed games
+                            case 4:
+                                seats = [
+                                    new Pinochle.Seat(new Phaser.Rectangle(_this.game.width / 2, _this.game.height, _this.game.width, _this.cardHeight), 0),
+                                    new Pinochle.Seat(new Phaser.Rectangle(0, _this.game.height / 2, _this.game.height, _this.cardHeight), 1.5708),
+                                    new Pinochle.Seat(new Phaser.Rectangle(_this.game.width, _this.game.height / 2, _this.game.height / 2, _this.cardHeight), -1.5708),
+                                    new Pinochle.Seat(new Phaser.Rectangle(_this.game.width / 2, 0, _this.game.width, _this.cardHeight), 3.14159),
+                                ];
+                                break;
+                        }
+                        // Calculate a seat offset so that the current player is on the bottom
+                        var seatOffset = 0;
+                        jQuery.each(_this._model.players, function (index, playerModel) {
+                            if (playerModel.user.id === _this.userId) {
+                                seatOffset = index;
+                            }
+                        });
+                        // Rotate the seats by the offset
+                        var newSeats = [];
+                        for (var i = seatOffset; i < (seatOffset + seats.length); i++) {
+                            var index = i;
+                            if (index >= seats.length) {
+                                index -= seats.length;
+                            }
+                            newSeats.push(seats[index]);
+                        }
+                        seats = newSeats;
+                        // Create players
+                        jQuery.each(_this._model.players, function (index, playerModel) {
+                            _this.players.push(new Pinochle.Player(_this.game, playerModel, seats, _this.cardBackStyle));
+                        });
+                    }
+                    else {
+                        // Update players
+                        jQuery.each(_this._model.players, function (index, playerModel) {
+                            _this.players[index].model = playerModel;
+                        });
+                    }
+                    _this.lastUpdated = moment(_this._model.updated_at);
                 }
-            }
+                // Queue up next server check
+                setTimeout(function () {
+                    _this.checkServer();
+                }, _this.serverCheckDelay);
+            }).fail(function (response) {
+                console.log('error');
+                console.log(response);
+            });
         };
         Game.prototype.update = function () {
             // Collision
@@ -368,19 +428,153 @@ var Pinochle;
     Pinochle.DialogOptionResultType = DialogOptionResultType;
 })(Pinochle || (Pinochle = {}));
 /**
+ * Created by christian on 11/17/15.
+ */
+var Pinochle;
+(function (Pinochle) {
+    var Models;
+    (function (Models) {
+        var Game = (function () {
+            function Game() {
+            }
+            return Game;
+        })();
+        Models.Game = Game;
+    })(Models = Pinochle.Models || (Pinochle.Models = {}));
+})(Pinochle || (Pinochle = {}));
+/**
+ * Created by christian on 11/17/15.
+ */
+var Pinochle;
+(function (Pinochle) {
+    var Models;
+    (function (Models) {
+        var User = (function () {
+            function User() {
+            }
+            return User;
+        })();
+        Models.User = User;
+    })(Models = Pinochle.Models || (Pinochle.Models = {}));
+})(Pinochle || (Pinochle = {}));
+/**
+ * Created by christian on 11/17/15.
+ */
+var Pinochle;
+(function (Pinochle) {
+    var Models;
+    (function (Models) {
+        var Player = (function () {
+            function Player() {
+            }
+            return Player;
+        })();
+        Models.Player = Player;
+    })(Models = Pinochle.Models || (Pinochle.Models = {}));
+})(Pinochle || (Pinochle = {}));
+/**
+ * Created by christian on 11/18/15.
+ */
+var Pinochle;
+(function (Pinochle) {
+    var Seat = (function () {
+        function Seat(rectangle, rotation) {
+            this._rectangle = rectangle;
+            this._rotation = rotation;
+        }
+        Object.defineProperty(Seat.prototype, "rectangle", {
+            get: function () {
+                return this._rectangle;
+            },
+            set: function (value) {
+                this._rectangle = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Seat.prototype, "rotation", {
+            get: function () {
+                return this._rotation;
+            },
+            set: function (value) {
+                this._rotation = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Seat;
+    })();
+    Pinochle.Seat = Seat;
+})(Pinochle || (Pinochle = {}));
+/**
+ * Created by christian on 11/17/15.
+ */
+var Pinochle;
+(function (Pinochle) {
+    var Player = (function () {
+        function Player(game, model, seats, cardBackStyle) {
+            this.lastUpdated = moment().subtract(1, 'days');
+            this.game = game;
+            this.cardBackStyle = cardBackStyle;
+            this.seat = seats[model.seat - 1];
+            this.cards = this.game.add.group();
+            this.cards.position.set(this.seat.rectangle.x, this.seat.rectangle.y);
+            this.cards.pivot.set(0, this.seat.rectangle.height);
+            this.cards.rotation = this.seat.rotation;
+            this.model = model;
+        }
+        Object.defineProperty(Player.prototype, "model", {
+            set: function (value) {
+                var _this = this;
+                this._model = value;
+                // Check if player has updated
+                if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
+                    this.cards.removeAll(true);
+                    if (!this._model.hasOwnProperty('hand')) {
+                        // If you have cannot access the player's hand, then show card backs only
+                        this._model['hand'] = [];
+                        for (var i = 0; i < this._model.card_count; i++) {
+                            this._model.hand.push(this.cardBackStyle);
+                        }
+                    }
+                    var x = 0;
+                    var width = 0;
+                    jQuery.each(this._model.hand, function (index, card) {
+                        var sprite = _this.cards.create(x, 0, 'cards', card);
+                        x += sprite.width / 2;
+                        width += x + sprite.width / 2;
+                    });
+                    this.cards.pivot.x = this.cards.width / 2;
+                    this.lastUpdated = moment(this._model.updated_at);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Player;
+    })();
+    Pinochle.Player = Player;
+})(Pinochle || (Pinochle = {}));
+/**
  * Created by chris on 10/2/15.
  */
 /// <reference path="../../node_modules/phaser/typescript/phaser.d.ts"/>
+/// <reference path="../../typings/tsd.d.ts"/>
 /// <reference path="States/Preload.ts" />    
 /// <reference path="States/Boot.ts" />    
 /// <reference path="States/Game.ts" />  
-/// <reference path="Dialog.ts" />    
+/// <reference path="Dialog.ts" />   
+/// <reference path="Models/Game.ts" />    
+/// <reference path="Models/User.ts" />    
+/// <reference path="Models/Player.ts" />    
+/// <reference path="Seat.ts" />
+/// <reference path="Player.ts" />    
 var Pinochle;
 (function (Pinochle) {
     var App = (function (_super) {
         __extends(App, _super);
         function App() {
-            _super.call(this, 1366, 768, Phaser.ScaleManager.RESIZE, '', null);
+            _super.call(this, 1366, 768, Phaser.CANVAS, '', null);
             this.state.add('Preload', Pinochle.Preload, false);
             this.state.add('Boot', Pinochle.Boot, true);
             this.state.add('Game', Pinochle.Game, false);
@@ -392,4 +586,3 @@ var Pinochle;
 window.onload = function () {
     new Pinochle.App;
 };
-//# sourceMappingURL=app.js.map

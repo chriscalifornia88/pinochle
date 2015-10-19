@@ -1,10 +1,13 @@
 <?php
 
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\User;
 use App\Response;
 
 class TestCase extends \Illuminate\Foundation\Testing\TestCase
 {
+    use DatabaseTransactions;
+    
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
@@ -58,9 +61,9 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
     protected function restCall($method, $uri = '', $parameters = [])
     {
         $this->httpResponse = $this
-            ->actingAs(\App\User::fetch(1))
+            ->actingAs(User::fetch(1))
             ->call($method, $uri, $parameters);
-
+        
         return Response::jsonDeserialize($this->httpResponse->content());
     }
 }

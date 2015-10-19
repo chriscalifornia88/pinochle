@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdatePlayersTable extends Migration
+class AddHandToPlayersTable extends Migration
 {
     /**
      * Run the migrations.

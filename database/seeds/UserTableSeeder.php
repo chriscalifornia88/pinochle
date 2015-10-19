@@ -12,7 +12,7 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
-        for($i=1; $i<=4; $i++) {
+        for($i=1; $i<=5; $i++) {
             User::create(
                 [
                     'name'     => 'User ' . $i,

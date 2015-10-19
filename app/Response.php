@@ -39,11 +39,12 @@ class Response implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'status'   => $this->status,
-            'data'     => $this->data,
-            'error'    => $this->error,
-            'code'     => $this->errorCode,
-            'metadata' => $this->metadata,
+            'status'    => $this->status,
+            'data'      => $this->data,
+            'error'     => $this->error,
+            'code'      => $this->errorCode,
+            'metadata'  => $this->metadata,
+            'csrfToken' => csrf_token(),
         ];
     }
 
@@ -147,9 +148,9 @@ class Response implements \JsonSerializable
     {
         $this->error = $exception->getMessage();
         $this->errorCode = $exception->getCode();
-     
+
         $this->status = self::STATUS_FAILURE;
-        
+
         // clear the data, since it may be incomplete or invalid
         $this->data = null;
 

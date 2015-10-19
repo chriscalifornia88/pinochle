@@ -17,6 +17,7 @@ class PlayerTableSeeder extends Seeder
             [
                 'game_id' => 1,
                 'user_id' => 1,
+                'seat'    => 1,
                 'hand'    => json_encode(
                     [
                         (new Card(Card::TYPE_9, Card::SUIT_DIAMONDS))->getCode(),
@@ -32,6 +33,7 @@ class PlayerTableSeeder extends Seeder
             [
                 'game_id' => 1,
                 'user_id' => 2,
+                'seat'    => 2,
                 'hand'    => json_encode(
                     [
                         (new Card(Card::TYPE_JACK, Card::SUIT_DIAMONDS))->getCode(),
@@ -45,6 +47,7 @@ class PlayerTableSeeder extends Seeder
             [
                 'game_id' => 1,
                 'user_id' => 3,
+                'seat'    => 3,
                 'hand'    => json_encode(
                     [
                         (new Card(Card::TYPE_KING, Card::SUIT_HEARTS))->getCode(),
@@ -59,6 +62,7 @@ class PlayerTableSeeder extends Seeder
             [
                 'game_id' => 1,
                 'user_id' => 4,
+                'seat'    => 4,
                 'hand'    => json_encode(
                     [
                         (new Card(Card::TYPE_9, Card::SUIT_SPADES))->getCode(),

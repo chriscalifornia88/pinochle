@@ -22,6 +22,8 @@ namespace App;
  * @property array $hand
  * @property int $card_count
  * @method static \Illuminate\Database\Query\Builder|\App\Player whereHand($value)
+ * @property integer $seat
+ * @method static \Illuminate\Database\Query\Builder|\App\Player whereSeat($value)
  */
 class Player extends BaseModel
 {
@@ -105,7 +107,7 @@ class Player extends BaseModel
         if (is_array($this->hand)) {
             return $this->hand;
         }
-        
+
         return json_decode($this->hand, true);
     }
 
@@ -116,6 +118,27 @@ class Player extends BaseModel
     public function setHand(array $cards)
     {
         $this->hand = json_encode(array_values($cards));
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @return int
+     */
+    public function getSeat()
+    {
+        return $this->seat;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @param int $seat
+     * @return $this
+     */
+    public function setSeat($seat)
+    {
+        $this->seat = $seat;
 
         return $this;
     }
@@ -132,6 +155,21 @@ class Player extends BaseModel
         $this->setHand($hand);
 
         return $this;
+    }
+
+    /**
+     * Get the player's card
+     * @param int $index
+     * @return Card
+     */
+    public function getCardByIndex($index)
+    {
+        $hand = $this->getHand();
+        if (isset($hand[$index])) {
+            return Card::createFromCode($hand[$index]);
+        }
+
+        return null;
     }
 
     /**

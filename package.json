@@ -1,8 +1,6 @@
 {
   "private": true,
   "devDependencies": {
-    "brace-expansion": "^1.1.1",
-    "del": "^2.0.2",
     "gulp": "^3.8.8",
     "laravel-elixir": "^3.2.8",
     "typescript": "^1.6.2",
@@ -11,6 +9,7 @@
   "dependencies": {
     "bootstrap-sass": "^3.3.5",
     "jquery": "^2.1.4",
+    "moment": "^2.10.6",
     "phaser": "^2.4.3"
   }
 }

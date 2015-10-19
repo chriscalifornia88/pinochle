@@ -7,7 +7,7 @@ use App\Card;
 class GameTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeds
      *
      * @return void
      */

@@ -19,6 +19,9 @@ namespace App;
  * @property string $play_area
  * @method static \Illuminate\Database\Query\Builder|\App\Game wherePlayArea($value)
  */
+
+use Illuminate\Database\Eloquent\Collection;
+
 class Game extends BaseModel
 {
     protected $casts = [
@@ -39,6 +42,23 @@ class Game extends BaseModel
     public function getPlayers()
     {
         return $this->players;
+    }
+
+    /**
+     * Get the player for the given user
+     * @param User $user
+     * @return Player
+     */
+    public function getPlayerForUser(User $user)
+    {
+        /** @var Collection $players */
+        $players = $this->players()->where('user_id', $user->getId())->get();
+
+        if ($players->count() > 0) {
+            return $players->first();
+        }
+
+        return null;
     }
 
     /**
