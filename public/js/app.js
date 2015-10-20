@@ -521,41 +521,22 @@ var Pinochle;
             this.game = game;
             this.cardBackStyle = cardBackStyle;
             this.seat = seats[model.seat - 1];
+            this.playArea = this.game.add.group();
+            this.playArea.position.set(this.seat.rectangle.x, this.seat.rectangle.y);
+            this.playArea.pivot.set(0, this.seat.rectangle.height);
+            this.playArea.rotation = this.seat.rotation;
             this.cards = this.game.add.group();
-            this.cards.position.set(this.seat.rectangle.x, this.seat.rectangle.y);
-            this.cards.pivot.set(0, this.seat.rectangle.height);
-            this.cards.rotation = this.seat.rotation;
+            this.playArea.add(this.cards);
             this.model = model;
-            if (true) {
-                // Create info box
-                this.infoBox = game.add.graphics(0, 0);
-                this.infoBox.beginFill(0x000000, .07);
-                var color = "0x" + model.color;
-                this.infoBox.lineStyle(5, color, 1);
-                var infoBoxWidth = 585;
-                var infoBoxHeight = 60;
-                // Place it above the cards
-                switch (this.seat.rotation) {
-                    case 0:
-                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxWidth, infoBoxHeight, 5);
-                        this.infoBox.pivot.set(this.infoBox.width / 2, this.infoBox.height);
-                        this.infoBox.y -= this.seat.rectangle.height + 15;
-                        break;
-                    case 3.14159:
-                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxWidth, infoBoxHeight, 5);
-                        this.infoBox.pivot.set(this.infoBox.width / 2, this.infoBox.height);
-                        this.infoBox.y += (this.seat.rectangle.height + 15) + this.infoBox.height;
-                        break;
-                    case 1.5708:
-                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxHeight, infoBoxWidth, 5);
-                        this.infoBox.pivot.set(this.infoBox.width, this.infoBox.height / 2);
-                        this.infoBox.x += (this.seat.rectangle.height + 151) + this.infoBox.width;
-                    case -1.5708:
-                        this.infoBox.drawRoundedRect(this.seat.rectangle.x, this.seat.rectangle.y, infoBoxHeight, infoBoxWidth, 5);
-                        this.infoBox.pivot.set(this.infoBox.width, this.infoBox.height / 2);
-                        this.infoBox.x -= this.seat.rectangle.height + 15;
-                }
-            }
+            // Create info box
+            this.infoBox = game.add.graphics(0, 0);
+            this.infoBox.beginFill(0x000000, .07);
+            var color = "0x" + model.color;
+            this.infoBox.lineStyle(5, color, .52);
+            var infoBoxWidth = 505;
+            var infoBoxHeight = 60;
+            this.infoBox.drawRoundedRect((this.playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
+            this.playArea.add(this.infoBox);
         }
         Object.defineProperty(Player.prototype, "model", {
             set: function (value) {
@@ -578,7 +559,11 @@ var Pinochle;
                         x += sprite.width / 2;
                         width += x + sprite.width / 2;
                     });
+                    this.playArea.pivot.x = this.playArea.width / 2;
                     this.cards.pivot.x = this.cards.width / 2;
+                    this.cards.x = this.playArea.width / 2;
+                    // Center info box
+                    //this.infoBox.x = ((this.playArea.width / 2) - (this.infoBox.width / 2));
                     this.lastUpdated = moment(this._model.updated_at);
                 }
             },
