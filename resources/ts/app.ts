@@ -18,6 +18,8 @@
 /// <reference path="Seat.ts" />
 /// <reference path="Player.ts" />    
 
+/// <reference path="InfoBox.ts" />
+    
 module Pinochle {
     export class App extends Phaser.Game {
         constructor() {

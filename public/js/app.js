@@ -1,12 +1,11 @@
-/**
- * Created by christian on 10/2/15.
- */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-/// <reference path="../../../node_modules/phaser/typescript/phaser.d.ts"/>
+/**
+ * Created by christian on 10/2/15.
+ */
 var Pinochle;
 (function (Pinochle) {
     var Preload = (function (_super) {
@@ -20,11 +19,11 @@ var Pinochle;
             this.load.setPreloadSprite(this.preloadBar);
             this.load.atlas('cards', 'assets/sprites/cards.png', 'assets/sprites/cards.xml', null, Phaser.Loader.TEXTURE_ATLAS_XML_STARLING);
             this.load.image('table-shadow', 'assets/graphics/table-shadow.png');
+            this.load.bitmapFont('justabit', 'assets/fonts/justabit.png', 'assets/fonts/justabit.xml');
             // Load game assets
             //this.load.tilemap('apartmentPorchMap', 'assets/tilemaps/chapter1/apartment_porch.json', null, Phaser.Tilemap.TILED_JSON);
             //this.load.image('chapter1Tiles', 'assets/tilemaps/chapter1/tiles.png');
             //
-            //this.load.bitmapFont('justabit', 'assets/fonts/justabit.png', 'assets/fonts/justabit.xml');
             //
             //this.load.image('player', 'assets/images/player.png');
         };
@@ -529,7 +528,7 @@ var Pinochle;
             this.playArea.add(this.cards);
             this.model = model;
             // Create info box
-            this.infoBox = game.add.graphics(0, 0);
+            this.infoBox = new Pinochle.InfoBox(this.game, this._model.user.name, this.seat.rotation);
             this.infoBox.beginFill(0x000000, .07);
             var color = "0x" + model.color;
             this.infoBox.lineStyle(5, color, .52);
@@ -537,6 +536,12 @@ var Pinochle;
             var infoBoxHeight = 60;
             this.infoBox.drawRoundedRect((this.playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
             this.playArea.add(this.infoBox);
+            // Update info box
+            this.infoBox.gameScore = 30;
+            this.infoBox.meldScore = 20;
+            this.infoBox.bid = 32;
+            //this.infoBox.passed = true;
+            this.infoBox.dealer = true;
         }
         Object.defineProperty(Player.prototype, "model", {
             set: function (value) {
@@ -575,6 +580,175 @@ var Pinochle;
     Pinochle.Player = Player;
 })(Pinochle || (Pinochle = {}));
 /**
+ * Created by chris on 10/24/15.
+ */
+var Pinochle;
+(function (Pinochle) {
+    var InfoBox = (function (_super) {
+        __extends(InfoBox, _super);
+        function InfoBox(game, name, textRotation) {
+            _super.call(this, game);
+            this.vertical = false;
+            this._gameScoreValue = null;
+            this._meldScoreValue = null;
+            this._bidValue = null;
+            this._passedValue = false;
+            this._dealerValue = false;
+            this.textRotation = textRotation;
+            this.items = game.add.group();
+            this.items.width = this.width;
+            this.items.height = this.height;
+            // Flip the text upright
+            this.items.rotation = 0 - textRotation;
+            switch (this.textRotation) {
+                case 1.5708:
+                    this.vertical = true;
+                    this.items.x = 41;
+                    this.items.y = -47;
+                    break;
+                case -1.5708:
+                    this.vertical = true;
+                    this.items.x = 505;
+                    this.items.y -= 48;
+                    break;
+                case 3.14159:
+                    this.items.x = 500;
+                    this.items.y = -48;
+                    break;
+                case 0:
+                    this.items.x = 46;
+                    this.items.y = -46;
+                    break;
+            }
+            this.addChild(this.items);
+            // Add text items
+            var items = ["_gameScore", "_meldScore", "_bid", "_dealer"];
+            var x = 0;
+            var y = 0;
+            for (var i = 0; i < items.length; i++) {
+                this[items[i]] = this.game.add.bitmapText(x, y, "justabit", "", 20);
+                this[items[i]].align = "center";
+                if (this.vertical) {
+                    // Stack the items top to bottom
+                    y += 63;
+                }
+                else {
+                    // Stack the items left to right
+                    x += 63;
+                }
+                this.items.add(this[items[i]]);
+            }
+            this._name = this.game.add.bitmapText(460, -9, "justabit", name, 20);
+            this._name.rotation = textRotation;
+            this._name.updateText();
+            switch (this.textRotation) {
+                case 1.5708:
+                    this._name.position.set(8, 464);
+                    this._name.position.y -= this._name.textWidth;
+                    break;
+                case -1.5708:
+                    this._name.position.set(-7, 464);
+                    break;
+                case 3.14159:
+                    // Show the name right side up
+                    this._name.rotation = 0;
+                default:
+                    // Right align the text
+                    this._name.position.x -= this._name.textWidth;
+                    break;
+            }
+            this.items.add(this._name);
+        }
+        InfoBox.prototype.centerText = function (text) {
+            text.updateText();
+            if (this.vertical) {
+                text.position.x = 0 - (text.textWidth / 2);
+            }
+            else {
+                text.position.y = 0 - (text.textHeight / 2);
+            }
+            console.log(text.textWidth);
+        };
+        Object.defineProperty(InfoBox.prototype, "gameScore", {
+            get: function () {
+                return this._gameScoreValue;
+            },
+            set: function (value) {
+                this._gameScoreValue = value;
+                this._gameScore.text = "Score\n" + value;
+                this.centerText(this._gameScore);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(InfoBox.prototype, "meldScore", {
+            get: function () {
+                return this._meldScoreValue;
+            },
+            set: function (value) {
+                this._meldScoreValue = value;
+                this._meldScore.text = "Meld\n" + value;
+                this.centerText(this._meldScore);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(InfoBox.prototype, "bid", {
+            get: function () {
+                return this._bidValue;
+            },
+            set: function (value) {
+                this._bidValue = value;
+                if (this._passedValue) {
+                    this._bid.text = "Bid\nPass";
+                }
+                else {
+                    this._bid.text = "Bid\n" + value;
+                }
+                this.centerText(this._bid);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(InfoBox.prototype, "passed", {
+            get: function () {
+                return this._passedValue;
+            },
+            set: function (value) {
+                this._passedValue = value;
+                if (this._passedValue) {
+                    this._bid.text = "Bid\nPass";
+                }
+                else {
+                    this._bid.text = "Bid\n" + this._bidValue;
+                }
+                this.centerText(this._bid);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(InfoBox.prototype, "dealer", {
+            get: function () {
+                return this._dealerValue;
+            },
+            set: function (value) {
+                this._dealerValue = value;
+                if (this._dealerValue) {
+                    this._dealer.text = "Deal";
+                }
+                else {
+                    this._dealer.text = "";
+                }
+                this.centerText(this._dealer);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return InfoBox;
+    })(Phaser.Graphics);
+    Pinochle.InfoBox = InfoBox;
+})(Pinochle || (Pinochle = {}));
+/**
  * Created by chris on 10/2/15.
  */
 /// <reference path="../../node_modules/phaser/typescript/phaser.d.ts"/>
@@ -588,6 +762,7 @@ var Pinochle;
 /// <reference path="Models/Player.ts" />    
 /// <reference path="Seat.ts" />
 /// <reference path="Player.ts" />    
+/// <reference path="InfoBox.ts" />
 var Pinochle;
 (function (Pinochle) {
     var App = (function (_super) {

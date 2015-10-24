@@ -5,7 +5,7 @@ module Pinochle {
     export class Player {
         private _model:Models.Player;
 
-        private infoBox:Phaser.Graphics;
+        private infoBox:InfoBox;
 
         private game:Phaser.Game;
         private cardBackStyle:string;
@@ -30,16 +30,23 @@ module Pinochle {
             this.model = model;
 
             // Create info box
-            this.infoBox = game.add.graphics(0, 0);
+            this.infoBox = new InfoBox(this.game, this._model.user.name, this.seat.rotation);
             this.infoBox.beginFill(0x000000, .07);
             var color:any = "0x" + model.color;
             this.infoBox.lineStyle(5, color, .52);
 
             var infoBoxWidth = 505;
             var infoBoxHeight = 60;
-            
+
             this.infoBox.drawRoundedRect((this.playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
             this.playArea.add(this.infoBox);
+            
+            // Update info box
+            this.infoBox.gameScore = 30;
+            this.infoBox.meldScore = 20;
+            this.infoBox.bid = 32;
+            //this.infoBox.passed = true;
+            this.infoBox.dealer = true;
         }
 
         public set model(value:Models.Player) {
