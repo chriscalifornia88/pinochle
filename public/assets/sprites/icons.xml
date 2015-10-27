@@ -1,0 +1,7 @@
+<TextureAtlas imagePath="icons.png">
+  <!--
+  Created with ShoeBox
+  http://renderhjs.net/shoebox/
+  -->
+  <SubTexture name="arrow_up" x="0" y="0" width="56" height="68" frameX="-22" frameY="-16" frameWidth="100" frameHeight="100"/>
+</TextureAtlas>

@@ -23,8 +23,15 @@ module Pinochle {
 
         private _name:Phaser.BitmapText;
 
-        constructor(game:Phaser.Game, name:string, textRotation) {
+        constructor(game:Phaser.Game, playArea:Phaser.Group, color:number, name:string, textRotation) {
             super(game);
+
+            this.lineStyle(5, color, .52);
+
+            var infoBoxWidth = 505;
+            var infoBoxHeight = 60;
+            this.beginFill(0x000000, .07);
+            this.drawRoundedRect((playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
 
             this.textRotation = textRotation;
             this.items = game.add.group();
@@ -33,23 +40,25 @@ module Pinochle {
 
             // Flip the text upright
             this.items.rotation = 0 - textRotation;
+            this.items.x = (playArea.width / 2) - (infoBoxWidth / 2);
+
             switch (this.textRotation) {
                 case 1.5708: // Left
                     this.vertical = true;
-                    this.items.x = 41
+                    this.items.x += 26;
                     this.items.y = -47;
                     break;
                 case -1.5708: // Right
                     this.vertical = true;
-                    this.items.x = 505;
-                    this.items.y -= 48;
+                    this.items.x += this.width - 26;
+                    this.items.y = -48;
                     break;
                 case 3.14159: // Top
-                    this.items.x = 500;
+                    this.items.x += this.width - 26;
                     this.items.y = -48;
                     break;
                 case 0: // Bottom
-                    this.items.x = 46;
+                    this.items.x += 26;
                     this.items.y = -46;
                     break;
             }
@@ -96,6 +105,7 @@ module Pinochle {
             }
 
             this.items.add(this._name);
+            playArea.add(this);
         }
 
         private centerText(text:Phaser.BitmapText) {
@@ -105,7 +115,6 @@ module Pinochle {
             } else {
                 text.position.y = 0 - (text.textHeight / 2);
             }
-            console.log(text.textWidth);
         }
 
         public get gameScore():number {

@@ -27,7 +27,7 @@ module Pinochle {
             this.game.stage.backgroundColor = '#5fa777';
             this.game.scale.forceLandscape = true;
             this.game.scale.refresh();
-            
+
             var tableShadow:Phaser.Image = this.game.add.image(0, 0, 'table-shadow');
             tableShadow.width = this.game.width;
             tableShadow.height = this.game.width;
@@ -93,6 +93,11 @@ module Pinochle {
                     }
 
                     this.lastUpdated = moment(this._model.updated_at);
+
+                    // Setup CSRF
+                    jQuery.ajaxSetup({
+                        headers: {"X-CSRF-TOKEN": response.csrfToken}
+                    });
                 }
 
                 // Queue up next server check

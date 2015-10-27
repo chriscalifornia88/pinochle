@@ -18,6 +18,7 @@ var Pinochle;
             this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadbar');
             this.load.setPreloadSprite(this.preloadBar);
             this.load.atlas('cards', 'assets/sprites/cards.png', 'assets/sprites/cards.xml', null, Phaser.Loader.TEXTURE_ATLAS_XML_STARLING);
+            this.load.atlas('icons', 'assets/sprites/icons.png', 'assets/sprites/icons.xml', null, Phaser.Loader.TEXTURE_ATLAS_XML_STARLING);
             this.load.image('table-shadow', 'assets/graphics/table-shadow.png');
             this.load.bitmapFont('justabit', 'assets/fonts/justabit.png', 'assets/fonts/justabit.xml');
             // Load game assets
@@ -149,6 +150,10 @@ var Pinochle;
                         });
                     }
                     _this.lastUpdated = moment(_this._model.updated_at);
+                    // Setup CSRF
+                    jQuery.ajaxSetup({
+                        headers: { "X-CSRF-TOKEN": response.csrfToken }
+                    });
                 }
                 // Queue up next server check
                 setTimeout(function () {
@@ -516,6 +521,11 @@ var Pinochle;
 (function (Pinochle) {
     var Player = (function () {
         function Player(game, model, seats, cardBackStyle) {
+            this.infoBox = null;
+            this.currentPlayer = false;
+            this.busy = false;
+            this.selectedCard = null;
+            this.selectionArrow = null;
             this.lastUpdated = moment().subtract(1, 'days');
             this.game = game;
             this.cardBackStyle = cardBackStyle;
@@ -526,23 +536,71 @@ var Pinochle;
             this.playArea.rotation = this.seat.rotation;
             this.cards = this.game.add.group();
             this.playArea.add(this.cards);
+            // Create info box            
+            this.color = "0x" + model.color;
             this.model = model;
-            // Create info box
-            this.infoBox = new Pinochle.InfoBox(this.game, this._model.user.name, this.seat.rotation);
-            this.infoBox.beginFill(0x000000, .07);
-            var color = "0x" + model.color;
-            this.infoBox.lineStyle(5, color, .52);
-            var infoBoxWidth = 505;
-            var infoBoxHeight = 60;
-            this.infoBox.drawRoundedRect((this.playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
-            this.playArea.add(this.infoBox);
-            // Update info box
-            this.infoBox.gameScore = 30;
-            this.infoBox.meldScore = 20;
-            this.infoBox.bid = 32;
-            //this.infoBox.passed = true;
-            this.infoBox.dealer = true;
+            // Setup icons
+            this.selectionArrow = this.game.add.sprite(0, 0, 'icons', 'arrow_up');
+            this.selectionArrow.scale.set(0.7, 0.7);
+            this.selectionArrow.visible = false;
+            this.playArea.add(this.selectionArrow);
         }
+        Player.prototype.cardMouseOver = function (card) {
+            if (this.busy) {
+                return;
+            }
+            card.tint = 0x7facd3;
+        };
+        Player.prototype.cardMouseOut = function (card) {
+            if (this.busy) {
+                return;
+            }
+            card.tint = 0xffffff;
+        };
+        Player.prototype.cardMouseDown = function (card) {
+            if (this.busy) {
+                return;
+            }
+            if (card === this.selectedCard) {
+                this.selectedCard = null;
+                this.selectionArrow.visible = false;
+                this.playCard(card);
+                return;
+            }
+            if (this.selectedCard !== null) {
+                this.selectedCard.y += 30;
+            }
+            card.y -= 30;
+            this.selectedCard = card;
+            this.cardMouseOut(card);
+            // Show arrow
+            this.selectionArrow.position.x = card.x + 3; // + (this.selectionArrow.width / 2);
+            this.selectionArrow.position.y = card.y - (this.selectionArrow.height + 25);
+            this.selectionArrow.visible = true;
+        };
+        Player.prototype.playCard = function (card) {
+            var _this = this;
+            var index = this.cards.getChildIndex(card);
+            this.busy = true;
+            jQuery.ajax({
+                url: '/game/' + this._model.game_id + '/card/' + index,
+                type: 'PUT',
+                success: function (response) {
+                    _this.busy = false;
+                    jQuery.each(response.data.players, function (index, player) {
+                        if (player.id === _this._model.id) {
+                            // Refresh the play area
+                            _this.model = player;
+                        }
+                    });
+                },
+                fail: function (response) {
+                    this.busy = false;
+                    console.log('error');
+                    console.log(response);
+                }
+            });
+        };
         Object.defineProperty(Player.prototype, "model", {
             set: function (value) {
                 var _this = this;
@@ -550,6 +608,7 @@ var Pinochle;
                 // Check if player has updated
                 if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
                     this.cards.removeAll(true);
+                    this.playArea.remove(this.infoBox, true);
                     if (!this._model.hasOwnProperty('hand')) {
                         // If you have cannot access the player's hand, then show card backs only
                         this._model['hand'] = [];
@@ -557,18 +616,37 @@ var Pinochle;
                             this._model.hand.push(this.cardBackStyle);
                         }
                     }
+                    else {
+                        // This is the currently logged in player
+                        this.currentPlayer = true;
+                    }
                     var x = 0;
                     var width = 0;
                     jQuery.each(this._model.hand, function (index, card) {
                         var sprite = _this.cards.create(x, 0, 'cards', card);
                         x += sprite.width / 2;
                         width += x + sprite.width / 2;
+                        if (_this.currentPlayer) {
+                            // Add events
+                            sprite.inputEnabled = true;
+                            sprite.input.useHandCursor = true;
+                            sprite.events.onInputOver.add(_this.cardMouseOver, _this);
+                            sprite.events.onInputOut.add(_this.cardMouseOut, _this);
+                            sprite.events.onInputDown.add(_this.cardMouseDown, _this);
+                        }
                     });
                     this.playArea.pivot.x = this.playArea.width / 2;
                     this.cards.pivot.x = this.cards.width / 2;
                     this.cards.x = this.playArea.width / 2;
-                    // Center info box
-                    //this.infoBox.x = ((this.playArea.width / 2) - (this.infoBox.width / 2));
+                    this.infoBox = new Pinochle.InfoBox(this.game, this.playArea, this.color, this._model.user.name, this.seat.rotation);
+                    // Update info box
+                    this.infoBox.gameScore = 30;
+                    this.infoBox.meldScore = 20;
+                    this.infoBox.bid = 32;
+                    //this.infoBox.passed = true;
+                    this.infoBox.dealer = true;
+                    // Layer cards over the infoBox
+                    this.playArea.bringToTop(this.cards);
                     this.lastUpdated = moment(this._model.updated_at);
                 }
             },
@@ -586,7 +664,7 @@ var Pinochle;
 (function (Pinochle) {
     var InfoBox = (function (_super) {
         __extends(InfoBox, _super);
-        function InfoBox(game, name, textRotation) {
+        function InfoBox(game, playArea, color, name, textRotation) {
             _super.call(this, game);
             this.vertical = false;
             this._gameScoreValue = null;
@@ -594,29 +672,35 @@ var Pinochle;
             this._bidValue = null;
             this._passedValue = false;
             this._dealerValue = false;
+            this.lineStyle(5, color, .52);
+            var infoBoxWidth = 505;
+            var infoBoxHeight = 60;
+            this.beginFill(0x000000, .07);
+            this.drawRoundedRect((playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
             this.textRotation = textRotation;
             this.items = game.add.group();
             this.items.width = this.width;
             this.items.height = this.height;
             // Flip the text upright
             this.items.rotation = 0 - textRotation;
+            this.items.x = (playArea.width / 2) - (infoBoxWidth / 2);
             switch (this.textRotation) {
                 case 1.5708:
                     this.vertical = true;
-                    this.items.x = 41;
+                    this.items.x += 26;
                     this.items.y = -47;
                     break;
                 case -1.5708:
                     this.vertical = true;
-                    this.items.x = 505;
-                    this.items.y -= 48;
+                    this.items.x += this.width - 26;
+                    this.items.y = -48;
                     break;
                 case 3.14159:
-                    this.items.x = 500;
+                    this.items.x += this.width - 26;
                     this.items.y = -48;
                     break;
                 case 0:
-                    this.items.x = 46;
+                    this.items.x += 26;
                     this.items.y = -46;
                     break;
             }
@@ -658,6 +742,7 @@ var Pinochle;
                     break;
             }
             this.items.add(this._name);
+            playArea.add(this);
         }
         InfoBox.prototype.centerText = function (text) {
             text.updateText();
@@ -667,7 +752,6 @@ var Pinochle;
             else {
                 text.position.y = 0 - (text.textHeight / 2);
             }
-            console.log(text.textWidth);
         };
         Object.defineProperty(InfoBox.prototype, "gameScore", {
             get: function () {

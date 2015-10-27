@@ -119,7 +119,7 @@ class Player extends BaseModel
      */
     public function setHand(array $cards)
     {
-        $this->hand = json_encode(array_values($cards));
+        $this->hand = array_values($cards);
 
         return $this;
     }
