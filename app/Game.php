@@ -8,6 +8,8 @@ namespace App;
  * @property integer $id
  * @property string $name
  * @property boolean $active
+ * @property integer $lead_seat
+ * @property integer $dealer_seat
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Game whereId($value)
@@ -18,6 +20,8 @@ namespace App;
  * @property-read \Illuminate\Database\Eloquent\Collection|\Player[] $players
  * @property string $play_area
  * @method static \Illuminate\Database\Query\Builder|\App\Game wherePlayArea($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Game whereLeadSeat($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Game whereDealerSeat($value)
  */
 
 use Illuminate\Database\Eloquent\Collection;
@@ -92,6 +96,42 @@ class Game extends BaseModel
     }
 
     /**
+     * @return Player
+     */
+    public function getLeader() {
+        /** @var Collection $players */
+        $players = $this->players()->where('seat', $this->lead_seat, true)->get();
+
+        if($players->count() > 0) {
+            return $players->first();
+        }
+
+        return null;
+    }
+    
+    public function setLeader(Player $player) {
+        $this->lead_seat = $player->getSeat();
+    }
+
+    /**
+     * @return Player
+     */
+    public function getDealer() {
+        /** @var Collection $players */
+        $players = $this->players()->where('seat', $this->dealer_seat, true)->get();
+
+        if($players->count() > 0) {
+            return $players->first();
+        }
+
+        return null;
+    }
+
+    public function setDealer(Player $player) {
+        $this->dealer_seat = $player->getSeat();
+    }
+
+    /**
      * @codeCoverageIgnore
      * @return boolean
      */
@@ -131,7 +171,7 @@ class Game extends BaseModel
      */
     public function setPlayArea(array $cards)
     {
-        $this->play_area = json_encode(array_values($cards));
+        $this->play_area = array_values($cards);
 
         return $this;
     }

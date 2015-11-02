@@ -15,9 +15,11 @@ class GameTableSeeder extends Seeder
     {
         Game::create(
             [
-                'name'      => 'Game 1',
-                'active'    => true,
-                'play_area' => json_encode(
+                'name'        => 'Game 1',
+                'active'      => true,
+                'lead_seat'   => 1,
+                'dealer_seat' => 4,
+                'play_area'   => json_encode(
                     [
                         (new Card(Card::TYPE_JACK, Card::SUIT_DIAMONDS))->getCode(),
                         (new Card(Card::TYPE_10, Card::SUIT_DIAMONDS))->getCode(),

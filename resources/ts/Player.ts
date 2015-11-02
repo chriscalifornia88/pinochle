@@ -8,9 +8,10 @@ module Pinochle {
         private color:any;
         private infoBox:InfoBox = null;
 
-        private game:Phaser.Game;
+        private gameModel:Models.Game;
+        public game:Phaser.Game;
+        public seat:Seat;
         private cardBackStyle:string;
-        private seat:Seat;
         private playArea:Phaser.Group;
         private cards:Phaser.Group;
         private currentPlayer:boolean = false;
@@ -20,7 +21,8 @@ module Pinochle {
 
         private lastUpdated:moment.Moment = moment().subtract(1, 'days');
 
-        constructor(game:Phaser.Game, model:Models.Player, seats:Seat[], cardBackStyle:string) {
+        constructor(game:Phaser.Game, gameModel:Models.Game, model:Models.Player, seats:Seat[], cardBackStyle:string) {
+            this.gameModel = gameModel;
             this.game = game;
             this.cardBackStyle = cardBackStyle;
             this.seat = seats[model.seat - 1]
@@ -45,26 +47,26 @@ module Pinochle {
         }
 
         private cardMouseOver(card:Phaser.Sprite) {
-            if(this.busy) {
+            if (this.busy) {
                 return;
             }
-            
+
             card.tint = 0x7facd3;
         }
 
         private cardMouseOut(card:Phaser.Sprite) {
-            if(this.busy) {
+            if (this.busy) {
                 return;
             }
-            
+
             card.tint = 0xffffff;
         }
 
         private cardMouseDown(card:Phaser.Sprite) {
-            if(this.busy) {
+            if (this.busy) {
                 return;
             }
-            
+
             if (card === this.selectedCard) {
                 this.selectedCard = null;
                 this.selectionArrow.visible = false;
@@ -84,6 +86,7 @@ module Pinochle {
             this.selectionArrow.position.x = card.x + 3;// + (this.selectionArrow.width / 2);
             this.selectionArrow.position.y = card.y - (this.selectionArrow.height + 25);
             this.selectionArrow.visible = true;
+            this.playArea.bringToTop(this.selectionArrow);
         }
 
         private playCard(card:Phaser.Sprite) {
@@ -94,7 +97,7 @@ module Pinochle {
                 url: '/game/' + this._model.game_id + '/card/' + index,
                 type: 'PUT',
                 success: (response) => {
-            this.busy = false;
+                    this.busy = false;
                     jQuery.each(response.data.players, (index:number, player:Models.Player) => {
                         if (player.id === this._model.id) {
                             // Refresh the play area
@@ -102,8 +105,8 @@ module Pinochle {
                         }
                     })
                 },
-                fail: function (response) {
-            this.busy = false;
+                error: (response) => {
+                    this.busy = false;
                     console.log('error');
                     console.log(response);
                 }
@@ -149,14 +152,15 @@ module Pinochle {
                 this.cards.pivot.x = this.cards.width / 2;
                 this.cards.x = this.playArea.width / 2;
 
-                this.infoBox = new InfoBox(this.game, this.playArea, this.color, this._model.user.name, this.seat.rotation);
+                this.infoBox = new InfoBox(this, this.playArea, this.color, this._model.user.name);
 
                 // Update info box
                 this.infoBox.gameScore = 30;
                 this.infoBox.meldScore = 20;
                 this.infoBox.bid = 32;
                 //this.infoBox.passed = true;
-                this.infoBox.dealer = true;
+                this.infoBox.leader = (this._model.seat === this.gameModel.lead_seat);
+                this.infoBox.dealer = (this._model.seat === this.gameModel.dealer_seat);
 
                 // Layer cards over the infoBox
                 this.playArea.bringToTop(this.cards);

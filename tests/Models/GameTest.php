@@ -2,6 +2,7 @@
 use App\Game;
 use App\Card;
 use App\User;
+use App\Player;
 
 class GameTest extends TestCase
 {
@@ -22,8 +23,57 @@ class GameTest extends TestCase
 
         $player = $game->getPlayerForUser($user);
         $this->assertEquals($user->getId(), $player->getUser()->getId());
-        
+
         $this->assertNull($game->getPlayerForUser(User::fetch(5)));
+    }
+
+    public function testGetLeader()
+    {
+        $game = Game::fetch(1);
+
+        $player = $game->getLeader();
+        $this->assertEquals(1, $player->getId());
+    }
+
+    public function testGetLeaderWhenNull()
+    {
+        $game = Game::fetch(2);
+        
+        $this->assertNull($game->getLeader());
+    }
+
+    public function testSetLeader()
+    {
+        $game = Game::fetch(1);
+        $player = Player::fetch(2);
+
+        $game->setLeader($player);
+        $this->assertEquals($player->getId(), $game->getLeader()->getId());
+    }
+
+    public function testGetDealer()
+    {
+        $game = Game::fetch(1);
+
+        $player = $game->getDealer();
+        $this->assertEquals(4, $player->getId());
+    }
+
+    public function testGetDealerWhenNull()
+    {
+        $game = Game::fetch(2);
+
+        $this->assertNull($game->getDealer());
+    }
+
+
+    public function testSetDealer()
+    {
+        $game = Game::fetch(1);
+        $player = Player::fetch(3);
+
+        $game->setDealer($player);
+        $this->assertEquals($player->getId(), $game->getDealer()->getId());
     }
 
     public function testPlayArea()

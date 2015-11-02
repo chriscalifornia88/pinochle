@@ -11,7 +11,7 @@ module Pinochle {
         private gameId = 1;
         private userId = 1;
 
-        private serverCheckDelay = 2000; // 2 seconds
+        private serverCheckDelay = 1000; // 1 second
 
         private cardBackStyle = 'back_blue5';
         private cardWidth = 84;
@@ -19,6 +19,10 @@ module Pinochle {
         private loading:boolean = false;
         private dialog:Dialog;
         private players:Player[] = [];
+        private seats:Seat[] = [];
+        private rotatedSeats:Seat[] = [];
+        private playArea:Phaser.Group;
+        private cards:Phaser.Group;
 
         create() {
             this.dialog = new Dialog();
@@ -33,6 +37,11 @@ module Pinochle {
             tableShadow.height = this.game.width;
             //this.game.stage.smoothed = false;
 
+            this.playArea = this.game.add.group();
+            this.playArea.position.set(this.game.width / 2, this.game.height / 2);
+            this.cards = this.game.add.group();
+            this.playArea.add(this.cards);
+
             // Setup input
             this.game.input.mouse.enabled = true;
 
@@ -46,6 +55,8 @@ module Pinochle {
 
                 // Check if game has updated
                 if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
+                    this.cards.removeAll();
+
                     // Refresh players
                     if (this.players.length === 0) {
                         // Calculate player positions
@@ -54,36 +65,30 @@ module Pinochle {
                             // todo: add support for 3-5 handed games
                             case 4:
                                 seats = [
-                                    new Seat(new Phaser.Rectangle(this.game.width / 2, this.game.height, this.game.width, this.cardHeight), 0),             // bottom
-                                    new Seat(new Phaser.Rectangle(0, this.game.height / 2, this.game.height, this.cardHeight), 1.5708),                     // left
-                                    new Seat(new Phaser.Rectangle(this.game.width, this.game.height / 2, this.game.height / 2, this.cardHeight), -1.5708),  // right
-                                    new Seat(new Phaser.Rectangle(this.game.width / 2, 0, this.game.width, this.cardHeight), 3.14159),                      // top
+                                    new Seat(1, Seat.Position.Bottom, new Phaser.Rectangle(this.game.width / 2, this.game.height, this.game.width, this.cardHeight), 0),
+                                    new Seat(2, Seat.Position.Left, new Phaser.Rectangle(0, this.game.height / 2, this.game.height, this.cardHeight), 1.5708),
+                                    new Seat(3, Seat.Position.Top, new Phaser.Rectangle(this.game.width / 2, 0, this.game.width, this.cardHeight), 3.14159),
+                                    new Seat(4, Seat.Position.Right, new Phaser.Rectangle(this.game.width, this.game.height / 2, this.game.height / 2, this.cardHeight), -1.5708),
                                 ];
                                 break;
                         }
+                        this.seats = seats;
 
-                        // Calculate a seat offset so that the current player is on the bottom
-                        var seatOffset = 0;
-                        jQuery.each(this._model.players, (index:number, playerModel:Models.Player) => {
-                            if (playerModel.user.id === this.userId) {
-                                seatOffset = index;
-                            }
+                        // Rotate seats to the active player
+                        var activePlayer = this._model.players.filter((playerModel:Models.Player)=> {
+                            return playerModel.user.id === this.userId;
+                        })[0];
+                        this.rotatedSeats = this.rotateArray(activePlayer.seat - 1, seats);
+
+                        // Set relative positions
+                        var positions:Seat.Position[] = [Seat.Position.Bottom, Seat.Position.Left, Seat.Position.Top, Seat.Position.Right];
+                        jQuery.each(this.rotatedSeats, (index:number) => {
+                            this.rotatedSeats[index].relativePosition = positions[index];
                         });
-
-                        // Rotate the seats by the offset
-                        var newSeats:Seat[] = [];
-                        for (var i = seatOffset; i < (seatOffset + seats.length); i++) {
-                            var index = i;
-                            if (index >= seats.length) {
-                                index -= seats.length;
-                            }
-                            newSeats.push(seats[index]);
-                        }
-                        seats = newSeats;
 
                         // Create players
                         jQuery.each(this._model.players, (index:number, playerModel:Models.Player) => {
-                            this.players.push(new Player(this.game, playerModel, seats, this.cardBackStyle));
+                            this.players.push(new Player(this.game, this._model, playerModel, this.rotatedSeats, this.cardBackStyle));
                         });
                     } else {
                         // Update players
@@ -91,6 +96,46 @@ module Pinochle {
                             this.players[index].model = playerModel;
                         });
                     }
+
+                    // Pad the play area so that each player has an entry
+                    var playArea = this._model.play_area;
+                    if (playArea == null) {
+                        playArea = [];
+                    }
+                    while (playArea.length < this.players.length) {
+                        playArea.push("");
+                    }
+
+                    // Rotate the play area to the leading player
+                    var rotatedSeatsByLeader = this.rotateArray(this._model.lead_seat - 1, this.seats);
+
+                    // Update play area
+                    jQuery.each(rotatedSeatsByLeader, (index:number, seat:Seat) => {
+                        var card = playArea[index];
+
+                        // Check if this seat has played a card
+                        if (card.length > 0) {
+                            // Place each card in front of the player who played it
+                            var sprite:Phaser.Sprite = this.cards.create(0, 0, 'cards', card);
+                            sprite.pivot.set(sprite.width / 2, sprite.height / 2);
+                            sprite.rotation = seat.rotation;
+
+                            switch (seat.relativePosition) {
+                                case Seat.Position.Left:
+                                    sprite.position.x -= sprite.height;
+                                    break;
+                                case Seat.Position.Right:
+                                    sprite.position.x += sprite.height;
+                                    break;
+                                case Seat.Position.Top:
+                                    sprite.position.y -= sprite.height;
+                                    break;
+                                case Seat.Position.Bottom:
+                                    sprite.position.y += sprite.height;
+                                    break;
+                            }
+                        }
+                    });
 
                     this.lastUpdated = moment(this._model.updated_at);
 
@@ -109,6 +154,20 @@ module Pinochle {
                 console.log('error');
                 console.log(response);
             });
+        }
+
+        // Rotate array to the specified index
+        rotateArray(index:number, array:any[]) {
+            var rotatedArray:any[] = [];
+            for (var i = index; i < (index + array.length); i++) {
+                var offsetIndex = i;
+                if (offsetIndex >= array.length) {
+                    offsetIndex -= array.length;
+                }
+                rotatedArray.push(array[offsetIndex]);
+            }
+
+            return rotatedArray;
         }
 
         update() {

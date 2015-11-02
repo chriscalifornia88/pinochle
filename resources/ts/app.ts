@@ -13,7 +13,7 @@
     
 /// <reference path="Models/Game.ts" />    
 /// <reference path="Models/User.ts" />    
-/// <reference path="Models/Player.ts" />    
+/// <reference path="Models/Player.ts" />  
     
 /// <reference path="Seat.ts" />
 /// <reference path="Player.ts" />    

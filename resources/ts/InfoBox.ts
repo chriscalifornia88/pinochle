@@ -3,6 +3,7 @@
  */
 module Pinochle {
     export class InfoBox extends Phaser.Graphics {
+        private player:Player;
         private items:Phaser.Group;
         private textRotation:number;
         private vertical:boolean = false;
@@ -21,11 +22,15 @@ module Pinochle {
         private _dealer:Phaser.BitmapText;
         private _dealerValue:boolean = false;
 
+        private _leader:Phaser.BitmapText;
+        private _leaderValue:boolean = false;
+
         private _name:Phaser.BitmapText;
 
-        constructor(game:Phaser.Game, playArea:Phaser.Group, color:number, name:string, textRotation) {
-            super(game);
+        constructor(player:Player, playArea:Phaser.Group, color:number, name:string) {
+            super(player.game);
 
+            this.player = player;
             this.lineStyle(5, color, .52);
 
             var infoBoxWidth = 505;
@@ -33,31 +38,31 @@ module Pinochle {
             this.beginFill(0x000000, .07);
             this.drawRoundedRect((playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
 
-            this.textRotation = textRotation;
-            this.items = game.add.group();
+            this.textRotation = player.seat.rotation;
+            this.items = player.game.add.group();
             this.items.width = this.width;
             this.items.height = this.height;
 
             // Flip the text upright
-            this.items.rotation = 0 - textRotation;
+            this.items.rotation = 0 - player.seat.rotation;
             this.items.x = (playArea.width / 2) - (infoBoxWidth / 2);
 
-            switch (this.textRotation) {
-                case 1.5708: // Left
+            switch (player.seat.position) {
+                case Seat.Position.Left:
                     this.vertical = true;
                     this.items.x += 26;
                     this.items.y = -47;
                     break;
-                case -1.5708: // Right
+                case Seat.Position.Right:
                     this.vertical = true;
                     this.items.x += this.width - 26;
                     this.items.y = -48;
                     break;
-                case 3.14159: // Top
+                case Seat.Position.Top:
                     this.items.x += this.width - 26;
                     this.items.y = -48;
                     break;
-                case 0: // Bottom
+                case Seat.Position.Bottom:
                     this.items.x += 26;
                     this.items.y = -46;
                     break;
@@ -65,7 +70,7 @@ module Pinochle {
             this.addChild(this.items);
 
             // Add text items
-            var items:string[] = ["_gameScore", "_meldScore", "_bid", "_dealer"];
+            var items:string[] = ["_gameScore", "_meldScore", "_bid", "_dealer", "_leader"];
             var x:number = 0;
             var y:number = 0;
             for (var i:number = 0; i < items.length; i++) {
@@ -84,7 +89,7 @@ module Pinochle {
             }
 
             this._name = this.game.add.bitmapText(460, -9, "justabit", name, 20);
-            this._name.rotation = textRotation;
+            this._name.rotation = player.seat.rotation;
             this._name.updateText();
 
             switch (this.textRotation) {
@@ -169,6 +174,22 @@ module Pinochle {
             }
 
             this.centerText(this._bid);
+        }
+
+        public get leader():boolean {
+            return this._leaderValue;
+        }
+
+        public set leader(value:boolean) {
+            this._leaderValue = value;
+
+            if (this._leaderValue) {
+                this._leader.text = "Lead";
+            } else {
+                this._leader.text = "";
+            }
+
+            this.centerText(this._leader);
         }
 
         public get dealer():boolean {

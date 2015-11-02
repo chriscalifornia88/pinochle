@@ -78,12 +78,14 @@ var Pinochle;
             // todo: soft code these IDs
             this.gameId = 1;
             this.userId = 1;
-            this.serverCheckDelay = 2000; // 2 seconds
+            this.serverCheckDelay = 1000; // 1 second
             this.cardBackStyle = 'back_blue5';
             this.cardWidth = 84;
             this.cardHeight = 114;
             this.loading = false;
             this.players = [];
+            this.seats = [];
+            this.rotatedSeats = [];
         }
         Game.prototype.create = function () {
             this.dialog = new Pinochle.Dialog();
@@ -95,6 +97,10 @@ var Pinochle;
             tableShadow.width = this.game.width;
             tableShadow.height = this.game.width;
             //this.game.stage.smoothed = false;
+            this.playArea = this.game.add.group();
+            this.playArea.position.set(this.game.width / 2, this.game.height / 2);
+            this.cards = this.game.add.group();
+            this.playArea.add(this.cards);
             // Setup input
             this.game.input.mouse.enabled = true;
             // Load the game state
@@ -106,6 +112,7 @@ var Pinochle;
                 _this._model = response.data;
                 // Check if game has updated
                 if (_this.lastUpdated.diff(moment(_this._model.updated_at)) !== 0) {
+                    _this.cards.removeAll();
                     // Refresh players
                     if (_this.players.length === 0) {
                         // Calculate player positions
@@ -114,33 +121,27 @@ var Pinochle;
                             // todo: add support for 3-5 handed games
                             case 4:
                                 seats = [
-                                    new Pinochle.Seat(new Phaser.Rectangle(_this.game.width / 2, _this.game.height, _this.game.width, _this.cardHeight), 0),
-                                    new Pinochle.Seat(new Phaser.Rectangle(0, _this.game.height / 2, _this.game.height, _this.cardHeight), 1.5708),
-                                    new Pinochle.Seat(new Phaser.Rectangle(_this.game.width, _this.game.height / 2, _this.game.height / 2, _this.cardHeight), -1.5708),
-                                    new Pinochle.Seat(new Phaser.Rectangle(_this.game.width / 2, 0, _this.game.width, _this.cardHeight), 3.14159),
+                                    new Pinochle.Seat(1, Pinochle.Seat.Position.Bottom, new Phaser.Rectangle(_this.game.width / 2, _this.game.height, _this.game.width, _this.cardHeight), 0),
+                                    new Pinochle.Seat(2, Pinochle.Seat.Position.Left, new Phaser.Rectangle(0, _this.game.height / 2, _this.game.height, _this.cardHeight), 1.5708),
+                                    new Pinochle.Seat(3, Pinochle.Seat.Position.Top, new Phaser.Rectangle(_this.game.width / 2, 0, _this.game.width, _this.cardHeight), 3.14159),
+                                    new Pinochle.Seat(4, Pinochle.Seat.Position.Right, new Phaser.Rectangle(_this.game.width, _this.game.height / 2, _this.game.height / 2, _this.cardHeight), -1.5708),
                                 ];
                                 break;
                         }
-                        // Calculate a seat offset so that the current player is on the bottom
-                        var seatOffset = 0;
-                        jQuery.each(_this._model.players, function (index, playerModel) {
-                            if (playerModel.user.id === _this.userId) {
-                                seatOffset = index;
-                            }
+                        _this.seats = seats;
+                        // Rotate seats to the active player
+                        var activePlayer = _this._model.players.filter(function (playerModel) {
+                            return playerModel.user.id === _this.userId;
+                        })[0];
+                        _this.rotatedSeats = _this.rotateArray(activePlayer.seat - 1, seats);
+                        // Set relative positions
+                        var positions = [Pinochle.Seat.Position.Bottom, Pinochle.Seat.Position.Left, Pinochle.Seat.Position.Top, Pinochle.Seat.Position.Right];
+                        jQuery.each(_this.rotatedSeats, function (index) {
+                            _this.rotatedSeats[index].relativePosition = positions[index];
                         });
-                        // Rotate the seats by the offset
-                        var newSeats = [];
-                        for (var i = seatOffset; i < (seatOffset + seats.length); i++) {
-                            var index = i;
-                            if (index >= seats.length) {
-                                index -= seats.length;
-                            }
-                            newSeats.push(seats[index]);
-                        }
-                        seats = newSeats;
                         // Create players
                         jQuery.each(_this._model.players, function (index, playerModel) {
-                            _this.players.push(new Pinochle.Player(_this.game, playerModel, seats, _this.cardBackStyle));
+                            _this.players.push(new Pinochle.Player(_this.game, _this._model, playerModel, _this.rotatedSeats, _this.cardBackStyle));
                         });
                     }
                     else {
@@ -149,6 +150,41 @@ var Pinochle;
                             _this.players[index].model = playerModel;
                         });
                     }
+                    // Pad the play area so that each player has an entry
+                    var playArea = _this._model.play_area;
+                    if (playArea == null) {
+                        playArea = [];
+                    }
+                    while (playArea.length < _this.players.length) {
+                        playArea.push("");
+                    }
+                    // Rotate the play area to the leading player
+                    var rotatedSeatsByLeader = _this.rotateArray(_this._model.lead_seat - 1, _this.seats);
+                    // Update play area
+                    jQuery.each(rotatedSeatsByLeader, function (index, seat) {
+                        var card = playArea[index];
+                        // Check if this seat has played a card
+                        if (card.length > 0) {
+                            // Place each card in front of the player who played it
+                            var sprite = _this.cards.create(0, 0, 'cards', card);
+                            sprite.pivot.set(sprite.width / 2, sprite.height / 2);
+                            sprite.rotation = seat.rotation;
+                            switch (seat.relativePosition) {
+                                case Pinochle.Seat.Position.Left:
+                                    sprite.position.x -= sprite.height;
+                                    break;
+                                case Pinochle.Seat.Position.Right:
+                                    sprite.position.x += sprite.height;
+                                    break;
+                                case Pinochle.Seat.Position.Top:
+                                    sprite.position.y -= sprite.height;
+                                    break;
+                                case Pinochle.Seat.Position.Bottom:
+                                    sprite.position.y += sprite.height;
+                                    break;
+                            }
+                        }
+                    });
                     _this.lastUpdated = moment(_this._model.updated_at);
                     // Setup CSRF
                     jQuery.ajaxSetup({
@@ -163,6 +199,18 @@ var Pinochle;
                 console.log('error');
                 console.log(response);
             });
+        };
+        // Rotate array to the specified index
+        Game.prototype.rotateArray = function (index, array) {
+            var rotatedArray = [];
+            for (var i = index; i < (index + array.length); i++) {
+                var offsetIndex = i;
+                if (offsetIndex >= array.length) {
+                    offsetIndex -= array.length;
+                }
+                rotatedArray.push(array[offsetIndex]);
+            }
+            return rotatedArray;
         };
         Game.prototype.update = function () {
             // Collision
@@ -486,10 +534,43 @@ var Pinochle;
 var Pinochle;
 (function (Pinochle) {
     var Seat = (function () {
-        function Seat(rectangle, rotation) {
+        function Seat(number, position, rectangle, rotation) {
+            this._number = number;
+            this._position = position;
+            this._relativePosition = position;
             this._rectangle = rectangle;
             this._rotation = rotation;
         }
+        Object.defineProperty(Seat.prototype, "number", {
+            get: function () {
+                return this._number;
+            },
+            set: function (value) {
+                this._number = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Seat.prototype, "position", {
+            get: function () {
+                return this._position;
+            },
+            set: function (value) {
+                this._position = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Seat.prototype, "relativePosition", {
+            get: function () {
+                return this._relativePosition;
+            },
+            set: function (value) {
+                this._relativePosition = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Seat.prototype, "rectangle", {
             get: function () {
                 return this._rectangle;
@@ -514,19 +595,33 @@ var Pinochle;
     })();
     Pinochle.Seat = Seat;
 })(Pinochle || (Pinochle = {}));
+var Pinochle;
+(function (Pinochle) {
+    var Seat;
+    (function (Seat) {
+        (function (Position) {
+            Position[Position["Bottom"] = 0] = "Bottom";
+            Position[Position["Left"] = 1] = "Left";
+            Position[Position["Top"] = 2] = "Top";
+            Position[Position["Right"] = 3] = "Right";
+        })(Seat.Position || (Seat.Position = {}));
+        var Position = Seat.Position;
+    })(Seat = Pinochle.Seat || (Pinochle.Seat = {}));
+})(Pinochle || (Pinochle = {}));
 /**
  * Created by christian on 11/17/15.
  */
 var Pinochle;
 (function (Pinochle) {
     var Player = (function () {
-        function Player(game, model, seats, cardBackStyle) {
+        function Player(game, gameModel, model, seats, cardBackStyle) {
             this.infoBox = null;
             this.currentPlayer = false;
             this.busy = false;
             this.selectedCard = null;
             this.selectionArrow = null;
             this.lastUpdated = moment().subtract(1, 'days');
+            this.gameModel = gameModel;
             this.game = game;
             this.cardBackStyle = cardBackStyle;
             this.seat = seats[model.seat - 1];
@@ -577,6 +672,7 @@ var Pinochle;
             this.selectionArrow.position.x = card.x + 3; // + (this.selectionArrow.width / 2);
             this.selectionArrow.position.y = card.y - (this.selectionArrow.height + 25);
             this.selectionArrow.visible = true;
+            this.playArea.bringToTop(this.selectionArrow);
         };
         Player.prototype.playCard = function (card) {
             var _this = this;
@@ -594,8 +690,8 @@ var Pinochle;
                         }
                     });
                 },
-                fail: function (response) {
-                    this.busy = false;
+                error: function (response) {
+                    _this.busy = false;
                     console.log('error');
                     console.log(response);
                 }
@@ -638,13 +734,14 @@ var Pinochle;
                     this.playArea.pivot.x = this.playArea.width / 2;
                     this.cards.pivot.x = this.cards.width / 2;
                     this.cards.x = this.playArea.width / 2;
-                    this.infoBox = new Pinochle.InfoBox(this.game, this.playArea, this.color, this._model.user.name, this.seat.rotation);
+                    this.infoBox = new Pinochle.InfoBox(this, this.playArea, this.color, this._model.user.name);
                     // Update info box
                     this.infoBox.gameScore = 30;
                     this.infoBox.meldScore = 20;
                     this.infoBox.bid = 32;
                     //this.infoBox.passed = true;
-                    this.infoBox.dealer = true;
+                    this.infoBox.leader = (this._model.seat === this.gameModel.lead_seat);
+                    this.infoBox.dealer = (this._model.seat === this.gameModel.dealer_seat);
                     // Layer cards over the infoBox
                     this.playArea.bringToTop(this.cards);
                     this.lastUpdated = moment(this._model.updated_at);
@@ -664,49 +761,51 @@ var Pinochle;
 (function (Pinochle) {
     var InfoBox = (function (_super) {
         __extends(InfoBox, _super);
-        function InfoBox(game, playArea, color, name, textRotation) {
-            _super.call(this, game);
+        function InfoBox(player, playArea, color, name) {
+            _super.call(this, player.game);
             this.vertical = false;
             this._gameScoreValue = null;
             this._meldScoreValue = null;
             this._bidValue = null;
             this._passedValue = false;
             this._dealerValue = false;
+            this._leaderValue = false;
+            this.player = player;
             this.lineStyle(5, color, .52);
             var infoBoxWidth = 505;
             var infoBoxHeight = 60;
             this.beginFill(0x000000, .07);
             this.drawRoundedRect((playArea.width / 2) - (infoBoxWidth / 2), -17 - infoBoxHeight, infoBoxWidth, infoBoxHeight, 10);
-            this.textRotation = textRotation;
-            this.items = game.add.group();
+            this.textRotation = player.seat.rotation;
+            this.items = player.game.add.group();
             this.items.width = this.width;
             this.items.height = this.height;
             // Flip the text upright
-            this.items.rotation = 0 - textRotation;
+            this.items.rotation = 0 - player.seat.rotation;
             this.items.x = (playArea.width / 2) - (infoBoxWidth / 2);
-            switch (this.textRotation) {
-                case 1.5708:
+            switch (player.seat.position) {
+                case Pinochle.Seat.Position.Left:
                     this.vertical = true;
                     this.items.x += 26;
                     this.items.y = -47;
                     break;
-                case -1.5708:
+                case Pinochle.Seat.Position.Right:
                     this.vertical = true;
                     this.items.x += this.width - 26;
                     this.items.y = -48;
                     break;
-                case 3.14159:
+                case Pinochle.Seat.Position.Top:
                     this.items.x += this.width - 26;
                     this.items.y = -48;
                     break;
-                case 0:
+                case Pinochle.Seat.Position.Bottom:
                     this.items.x += 26;
                     this.items.y = -46;
                     break;
             }
             this.addChild(this.items);
             // Add text items
-            var items = ["_gameScore", "_meldScore", "_bid", "_dealer"];
+            var items = ["_gameScore", "_meldScore", "_bid", "_dealer", "_leader"];
             var x = 0;
             var y = 0;
             for (var i = 0; i < items.length; i++) {
@@ -723,7 +822,7 @@ var Pinochle;
                 this.items.add(this[items[i]]);
             }
             this._name = this.game.add.bitmapText(460, -9, "justabit", name, 20);
-            this._name.rotation = textRotation;
+            this._name.rotation = player.seat.rotation;
             this._name.updateText();
             switch (this.textRotation) {
                 case 1.5708:
@@ -811,6 +910,23 @@ var Pinochle;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(InfoBox.prototype, "leader", {
+            get: function () {
+                return this._leaderValue;
+            },
+            set: function (value) {
+                this._leaderValue = value;
+                if (this._leaderValue) {
+                    this._leader.text = "Lead";
+                }
+                else {
+                    this._leader.text = "";
+                }
+                this.centerText(this._leader);
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(InfoBox.prototype, "dealer", {
             get: function () {
                 return this._dealerValue;
@@ -843,7 +959,7 @@ var Pinochle;
 /// <reference path="Dialog.ts" />   
 /// <reference path="Models/Game.ts" />    
 /// <reference path="Models/User.ts" />    
-/// <reference path="Models/Player.ts" />    
+/// <reference path="Models/Player.ts" />  
 /// <reference path="Seat.ts" />
 /// <reference path="Player.ts" />    
 /// <reference path="InfoBox.ts" />
