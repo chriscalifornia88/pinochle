@@ -7,7 +7,7 @@ use App\Card;
 class GameTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds
+     * Run the database seed
      *
      * @return void
      */
@@ -19,6 +19,7 @@ class GameTableSeeder extends Seeder
                 'active'      => true,
                 'lead_seat'   => 1,
                 'dealer_seat' => 4,
+                'active_seat' => 3,
                 'play_area'   => json_encode(
                     [
                         (new Card(Card::TYPE_JACK, Card::SUIT_DIAMONDS))->getCode(),

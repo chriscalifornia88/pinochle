@@ -10,6 +10,7 @@ namespace App;
  * @property boolean $active
  * @property integer $lead_seat
  * @property integer $dealer_seat
+ * @property integer $turn_seat
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Game whereId($value)
@@ -22,6 +23,9 @@ namespace App;
  * @method static \Illuminate\Database\Query\Builder|\App\Game wherePlayArea($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Game whereLeadSeat($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Game whereDealerSeat($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Game whereTurnSeat($value)
+ * @property integer $active_seat
+ * @method static \Illuminate\Database\Query\Builder|\App\Game whereActiveSeat($value)
  */
 
 use Illuminate\Database\Eloquent\Collection;
@@ -98,37 +102,61 @@ class Game extends BaseModel
     /**
      * @return Player
      */
-    public function getLeader() {
+    public function getLeader()
+    {
         /** @var Collection $players */
         $players = $this->players()->where('seat', $this->lead_seat, true)->get();
 
-        if($players->count() > 0) {
+        if ($players->count() > 0) {
             return $players->first();
         }
 
         return null;
     }
-    
-    public function setLeader(Player $player) {
+
+    public function setLeader(Player $player)
+    {
         $this->lead_seat = $player->getSeat();
     }
 
     /**
      * @return Player
      */
-    public function getDealer() {
+    public function getDealer()
+    {
         /** @var Collection $players */
         $players = $this->players()->where('seat', $this->dealer_seat, true)->get();
 
-        if($players->count() > 0) {
+        if ($players->count() > 0) {
             return $players->first();
         }
 
         return null;
     }
 
-    public function setDealer(Player $player) {
+    public function setDealer(Player $player)
+    {
         $this->dealer_seat = $player->getSeat();
+    }
+
+    /**
+     * @return Player
+     */
+    public function getActivePlayer()
+    {
+        /** @var Collection $players */
+        $players = $this->players()->where('seat', $this->active_seat, true)->get();
+
+        if ($players->count() > 0) {
+            return $players->first();
+        }
+
+        return null;
+    }
+
+    public function setActivePlayer(Player $player)
+    {
+        $this->active_seat = $player->getSeat();
     }
 
     /**

@@ -38,7 +38,7 @@ class GameTest extends TestCase
     public function testGetLeaderWhenNull()
     {
         $game = Game::fetch(2);
-        
+
         $this->assertNull($game->getLeader());
     }
 
@@ -66,7 +66,6 @@ class GameTest extends TestCase
         $this->assertNull($game->getDealer());
     }
 
-
     public function testSetDealer()
     {
         $game = Game::fetch(1);
@@ -74,6 +73,30 @@ class GameTest extends TestCase
 
         $game->setDealer($player);
         $this->assertEquals($player->getId(), $game->getDealer()->getId());
+    }
+
+    public function testGetActivePlayer()
+    {
+        $game = Game::fetch(1);
+
+        $player = $game->getActivePlayer();
+        $this->assertEquals(3, $player->getId());
+    }
+
+    public function testGetActivePlayerWhenNull()
+    {
+        $game = Game::fetch(2);
+
+        $this->assertNull($game->getActivePlayer());
+    }
+
+    public function testSetActivePlayer()
+    {
+        $game = Game::fetch(1);
+        $player = Player::fetch(2);
+
+        $game->setActivePlayer($player);
+        $this->assertEquals($player->getId(), $game->getActivePlayer()->getId());
     }
 
     public function testPlayArea()
