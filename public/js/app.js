@@ -141,7 +141,7 @@ var Pinochle;
                         });
                         // Create players
                         jQuery.each(_this._model.players, function (index, playerModel) {
-                            _this.players.push(new Pinochle.Player(_this.game, _this._model, playerModel, _this.rotatedSeats, _this.cardBackStyle));
+                            _this.players.push(new Pinochle.Player(_this.game, _this, playerModel, _this.rotatedSeats, _this.cardBackStyle));
                         });
                     }
                     else {
@@ -306,6 +306,13 @@ var Pinochle;
             //
             //this.dialog.show(this.game, text, options);
         };
+        Object.defineProperty(Game.prototype, "model", {
+            get: function () {
+                return this._model;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return Game;
     })(Phaser.State);
     Pinochle.Game = Game;
@@ -614,14 +621,14 @@ var Pinochle;
 var Pinochle;
 (function (Pinochle) {
     var Player = (function () {
-        function Player(game, gameModel, model, seats, cardBackStyle) {
+        function Player(game, gameState, model, seats, cardBackStyle) {
             this.infoBox = null;
             this.currentPlayer = false;
             this.busy = false;
             this.selectedCard = null;
             this.selectionArrow = null;
             this.lastUpdated = moment().subtract(1, 'days');
-            this.gameModel = gameModel;
+            this.gameState = gameState;
             this.game = game;
             this.cardBackStyle = cardBackStyle;
             this.seat = seats[model.seat - 1];
@@ -702,27 +709,28 @@ var Pinochle;
                 var _this = this;
                 this._model = value;
                 // Check if player has updated
-                if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
-                    this.cards.removeAll(true);
-                    this.playArea.remove(this.infoBox, true);
-                    if (!this._model.hasOwnProperty('hand')) {
-                        // If you have cannot access the player's hand, then show card backs only
-                        this._model['hand'] = [];
-                        for (var i = 0; i < this._model.card_count; i++) {
-                            this._model.hand.push(this.cardBackStyle);
-                        }
+                //if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
+                this.cards.removeAll(true);
+                this.playArea.remove(this.infoBox, true);
+                if (!this._model.hasOwnProperty('hand')) {
+                    // If you have cannot access the player's hand, then show card backs only
+                    this._model['hand'] = [];
+                    for (var i = 0; i < this._model.card_count; i++) {
+                        this._model.hand.push(this.cardBackStyle);
                     }
-                    else {
-                        // This is the currently logged in player
-                        this.currentPlayer = true;
-                    }
-                    var x = 0;
-                    var width = 0;
-                    jQuery.each(this._model.hand, function (index, card) {
-                        var sprite = _this.cards.create(x, 0, 'cards', card);
-                        x += sprite.width / 2;
-                        width += x + sprite.width / 2;
-                        if (_this.currentPlayer) {
+                }
+                else {
+                    // This is the currently logged in player
+                    this.currentPlayer = true;
+                }
+                var x = 0;
+                var width = 0;
+                jQuery.each(this._model.hand, function (index, card) {
+                    var sprite = _this.cards.create(x, 0, 'cards', card);
+                    x += sprite.width / 2;
+                    width += x + sprite.width / 2;
+                    if (_this.currentPlayer) {
+                        if (_this._model.seat === _this.gameState.model.active_seat) {
                             // Add events
                             sprite.inputEnabled = true;
                             sprite.input.useHandCursor = true;
@@ -730,22 +738,23 @@ var Pinochle;
                             sprite.events.onInputOut.add(_this.cardMouseOut, _this);
                             sprite.events.onInputDown.add(_this.cardMouseDown, _this);
                         }
-                    });
-                    this.playArea.pivot.x = this.playArea.width / 2;
-                    this.cards.pivot.x = this.cards.width / 2;
-                    this.cards.x = this.playArea.width / 2;
-                    this.infoBox = new Pinochle.InfoBox(this, this.playArea, this.color, this._model.user.name);
-                    // Update info box
-                    this.infoBox.gameScore = 30;
-                    this.infoBox.meldScore = 20;
-                    this.infoBox.bid = 32;
-                    //this.infoBox.passed = true;
-                    this.infoBox.leader = (this._model.seat === this.gameModel.lead_seat);
-                    this.infoBox.dealer = (this._model.seat === this.gameModel.dealer_seat);
-                    // Layer cards over the infoBox
-                    this.playArea.bringToTop(this.cards);
-                    this.lastUpdated = moment(this._model.updated_at);
-                }
+                    }
+                });
+                this.playArea.pivot.x = this.playArea.width / 2;
+                this.cards.pivot.x = this.cards.width / 2;
+                this.cards.x = this.playArea.width / 2;
+                this.infoBox = new Pinochle.InfoBox(this, this.playArea, this.color, this._model.user.name);
+                // Update info box
+                this.infoBox.gameScore = 30;
+                this.infoBox.meldScore = 20;
+                this.infoBox.bid = 32;
+                //this.infoBox.passed = true;
+                this.infoBox.leader = (this._model.seat === this.gameState.model.lead_seat);
+                this.infoBox.dealer = (this._model.seat === this.gameState.model.dealer_seat);
+                // Layer cards over the infoBox
+                this.playArea.bringToTop(this.cards);
+                this.lastUpdated = moment(this._model.updated_at);
+                //}
             },
             enumerable: true,
             configurable: true

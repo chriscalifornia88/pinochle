@@ -76,6 +76,11 @@ class GameController extends Controller
             if (!$user->inGame($game)) {
                 throw new AccessDeniedException(Game::getRelativeClassName());
             }
+            
+            // Ensure that the player is the active player
+            if ($game->getActivePlayer()->getId() !== $player->getId()) {
+                throw new AccessDeniedException(Game::getRelativeClassName());
+            }
 
             $card = $player->getCardByIndex($index);
             if (is_null($card)) {
@@ -88,6 +93,7 @@ class GameController extends Controller
 
             $game
                 ->addCard($card)
+                ->setActivePlayer($game->getNextPlayer($player))
                 ->save();
 
             $this->response->setData($this->getGameState($game));
@@ -103,7 +109,8 @@ class GameController extends Controller
      * @param Game $game
      * @return Game
      */
-    private function getGameState(Game $game) {
+    private function getGameState(Game $game)
+    {
         $user = \Auth::user();
         $game = $game->load(['players']);
 
@@ -114,7 +121,7 @@ class GameController extends Controller
                 $player->addHidden(['hand']);
             }
         }
-        
+
         return $game;
     }
 }

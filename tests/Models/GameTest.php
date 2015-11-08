@@ -15,6 +15,15 @@ class GameTest extends TestCase
         $this->assertCount(4, $players);
         $this->assertSame('User 1', $players[0]->getUser()->getName());
     }
+    
+    public function testGetNextPlayer() {
+        $game = Game::fetch(1);
+        
+        $this->assertEquals(2, $game->getNextPlayer(Player::fetch(1))->getId());
+        $this->assertEquals(3, $game->getNextPlayer(Player::fetch(2))->getId());
+        $this->assertEquals(4, $game->getNextPlayer(Player::fetch(3))->getId());
+        $this->assertEquals(1, $game->getNextPlayer(Player::fetch(4))->getId());
+    }
 
     public function testGetPlayerForUser()
     {
@@ -80,7 +89,7 @@ class GameTest extends TestCase
         $game = Game::fetch(1);
 
         $player = $game->getActivePlayer();
-        $this->assertEquals(3, $player->getId());
+        $this->assertEquals(1, $player->getId());
     }
 
     public function testGetActivePlayerWhenNull()

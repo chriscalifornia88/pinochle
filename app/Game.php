@@ -49,7 +49,7 @@ class Game extends BaseModel
      */
     public function getPlayers()
     {
-        return $this->players;
+        return $this->players()->orderBy('seat', 'asc')->get();
     }
 
     /**
@@ -97,6 +97,32 @@ class Game extends BaseModel
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * Get the next player clockwise from the specified player
+     * @param Player $player
+     * @return Player
+     */
+    public function getNextPlayer(Player $player)
+    {
+        $players = $this->getPlayers();
+
+        $index = 0;
+        foreach ($players as $eachIndex => $eachPlayer) {
+            if ($eachPlayer->getId() === $player->getId()) {
+                $index = $eachIndex;
+            }
+        }
+
+        $index++;
+
+        // Wrap around if this is the end of the array
+        if ($index >= count($players)) {
+            $index = 0;
+        }
+
+        return $players[$index];
     }
 
     /**
@@ -154,9 +180,16 @@ class Game extends BaseModel
         return null;
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @param Player $player
+     * @return $this
+     */
     public function setActivePlayer(Player $player)
     {
         $this->active_seat = $player->getSeat();
+        
+        return $this;
     }
 
     /**

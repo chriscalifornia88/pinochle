@@ -19,7 +19,7 @@ class GameTableSeeder extends Seeder
                 'active'      => true,
                 'lead_seat'   => 1,
                 'dealer_seat' => 4,
-                'active_seat' => 3,
+                'active_seat' => 1,
                 'play_area'   => json_encode(
                     [
                         (new Card(Card::TYPE_JACK, Card::SUIT_DIAMONDS))->getCode(),

@@ -88,7 +88,7 @@ module Pinochle {
 
                         // Create players
                         jQuery.each(this._model.players, (index:number, playerModel:Models.Player) => {
-                            this.players.push(new Player(this.game, this._model, playerModel, this.rotatedSeats, this.cardBackStyle));
+                            this.players.push(new Player(this.game, this, playerModel, this.rotatedSeats, this.cardBackStyle));
                         });
                     } else {
                         // Update players
@@ -264,6 +264,10 @@ module Pinochle {
             //};
             //
             //this.dialog.show(this.game, text, options);
+        }
+        
+        get model():Pinochle.Models.Game {
+            return this._model;
         }
     }
 }

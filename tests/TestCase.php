@@ -7,11 +7,14 @@ use App\Response;
 class TestCase extends \Illuminate\Foundation\Testing\TestCase
 {
     use DatabaseTransactions;
-    
+
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_DELETE = 'DELETE';
+
+    /** @var int */
+    protected $userId = 1;
 
     /** @var \Illuminate\Http\Response */
     protected $httpResponse;
@@ -28,6 +31,8 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
         parent::setUp();
 
         $this->prepareForTests();
+
+        $this->userId = 1;
 
         // Clear response
         $this->httpResponse = new \Illuminate\Http\Response();
@@ -61,9 +66,9 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
     protected function restCall($method, $uri = '', $parameters = [])
     {
         $this->httpResponse = $this
-            ->actingAs(User::fetch(1))
+            ->actingAs(User::fetch($this->userId))
             ->call($method, $uri, $parameters);
-        
+
         return Response::jsonDeserialize($this->httpResponse->content());
     }
 }

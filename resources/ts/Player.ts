@@ -8,7 +8,7 @@ module Pinochle {
         private color:any;
         private infoBox:InfoBox = null;
 
-        private gameModel:Models.Game;
+        private gameState:Game;
         public game:Phaser.Game;
         public seat:Seat;
         private cardBackStyle:string;
@@ -21,8 +21,8 @@ module Pinochle {
 
         private lastUpdated:moment.Moment = moment().subtract(1, 'days');
 
-        constructor(game:Phaser.Game, gameModel:Models.Game, model:Models.Player, seats:Seat[], cardBackStyle:string) {
-            this.gameModel = gameModel;
+        constructor(game:Phaser.Game, gameState:Game, model:Models.Player, seats:Seat[], cardBackStyle:string) {
+            this.gameState = gameState;
             this.game = game;
             this.cardBackStyle = cardBackStyle;
             this.seat = seats[model.seat - 1]
@@ -117,29 +117,30 @@ module Pinochle {
             this._model = value;
 
             // Check if player has updated
-            if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
-                this.cards.removeAll(true);
-                this.playArea.remove(this.infoBox, true);
+            //if (this.lastUpdated.diff(moment(this._model.updated_at)) !== 0) {
+            this.cards.removeAll(true);
+            this.playArea.remove(this.infoBox, true);
 
-                if (!this._model.hasOwnProperty('hand')) {
-                    // If you have cannot access the player's hand, then show card backs only
-                    this._model['hand'] = [];
-                    for (var i = 0; i < this._model.card_count; i++) {
-                        this._model.hand.push(this.cardBackStyle);
-                    }
-                } else {
-                    // This is the currently logged in player
-                    this.currentPlayer = true;
+            if (!this._model.hasOwnProperty('hand')) {
+                // If you have cannot access the player's hand, then show card backs only
+                this._model['hand'] = [];
+                for (var i = 0; i < this._model.card_count; i++) {
+                    this._model.hand.push(this.cardBackStyle);
                 }
+            } else {
+                // This is the currently logged in player
+                this.currentPlayer = true;
+            }
 
-                var x:number = 0;
-                var width:number = 0;
-                jQuery.each(this._model.hand, (index:number, card:string) => {
-                    var sprite:Phaser.Sprite = this.cards.create(x, 0, 'cards', card);
-                    x += sprite.width / 2;
-                    width += x + sprite.width / 2;
+            var x:number = 0;
+            var width:number = 0;
+            jQuery.each(this._model.hand, (index:number, card:string) => {
+                var sprite:Phaser.Sprite = this.cards.create(x, 0, 'cards', card);
+                x += sprite.width / 2;
+                width += x + sprite.width / 2;
 
-                    if (this.currentPlayer) {
+                if (this.currentPlayer) {
+                    if (this._model.seat === this.gameState.model.active_seat) {
                         // Add events
                         sprite.inputEnabled = true;
                         sprite.input.useHandCursor = true;
@@ -147,26 +148,27 @@ module Pinochle {
                         sprite.events.onInputOut.add(this.cardMouseOut, this);
                         sprite.events.onInputDown.add(this.cardMouseDown, this);
                     }
-                });
-                this.playArea.pivot.x = this.playArea.width / 2;
-                this.cards.pivot.x = this.cards.width / 2;
-                this.cards.x = this.playArea.width / 2;
+                }
+            });
+            this.playArea.pivot.x = this.playArea.width / 2;
+            this.cards.pivot.x = this.cards.width / 2;
+            this.cards.x = this.playArea.width / 2;
 
-                this.infoBox = new InfoBox(this, this.playArea, this.color, this._model.user.name);
+            this.infoBox = new InfoBox(this, this.playArea, this.color, this._model.user.name);
 
-                // Update info box
-                this.infoBox.gameScore = 30;
-                this.infoBox.meldScore = 20;
-                this.infoBox.bid = 32;
-                //this.infoBox.passed = true;
-                this.infoBox.leader = (this._model.seat === this.gameModel.lead_seat);
-                this.infoBox.dealer = (this._model.seat === this.gameModel.dealer_seat);
+            // Update info box
+            this.infoBox.gameScore = 30;
+            this.infoBox.meldScore = 20;
+            this.infoBox.bid = 32;
+            //this.infoBox.passed = true;
+            this.infoBox.leader = (this._model.seat === this.gameState.model.lead_seat);
+            this.infoBox.dealer = (this._model.seat === this.gameState.model.dealer_seat);
 
-                // Layer cards over the infoBox
-                this.playArea.bringToTop(this.cards);
+            // Layer cards over the infoBox
+            this.playArea.bringToTop(this.cards);
 
-                this.lastUpdated = moment(this._model.updated_at);
-            }
+            this.lastUpdated = moment(this._model.updated_at);
+            //}
         }
     }
 }

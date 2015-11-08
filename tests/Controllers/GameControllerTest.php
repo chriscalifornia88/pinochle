@@ -76,7 +76,10 @@ class GameControllerTest extends TestCase
 
         /** @var Game $game */
         $game = $response->getData();
-        $this->assertCount(5, json_decode($game->play_area, true));
+        $this->assertCount(5, $game->play_area);
+        
+        // Check that the active player has changed
+        $this->assertEquals(2, $game->active_seat);
         
         /** @var Player $player */
         $player = current($game->players);
@@ -88,6 +91,16 @@ class GameControllerTest extends TestCase
     public function testPutCardWrongGameThrowsAccessDeniedException()
     {
         $response = $this->restCall(self::METHOD_PUT, "/2/card/1");
+
+        $this->assertSame(Response::STATUS_FAILURE, $response->getStatus());
+        $this->assertEquals(ErrorCode::ACCESS_DENIED, $response->getErrorCode());
+        $this->assertEquals(Response::CODE_FORBIDDEN, $this->httpResponse->getStatusCode());
+    }
+
+    public function testPutCardNotActivePlayerThrowsAccessDeniedException()
+    {
+        $this->userId = 2;
+        $response = $this->restCall(self::METHOD_PUT, "/1/card/1");
 
         $this->assertSame(Response::STATUS_FAILURE, $response->getStatus());
         $this->assertEquals(ErrorCode::ACCESS_DENIED, $response->getErrorCode());

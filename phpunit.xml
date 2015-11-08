@@ -14,7 +14,7 @@
       <directory>./tests/</directory>
     </testsuite>
     <testsuite name="Custom">
-      <!--<file>./tests/Controllers/GameControllerTest.php</file>-->
+      <file>./tests/Controllers/GameControllerTest.php</file>
       <file>./tests/Models/GameTest.php</file>
     </testsuite>
   </testsuites>
